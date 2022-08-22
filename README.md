@@ -2,7 +2,8 @@
 
 ## 開発環境の構築
 
-- 開発環境には [Ubuntu 22.04.1 LTS](https://releases.ubuntu.com/22.04/) on VAIO + [Docker](https://www.docker.com/) (+ macOS) を使用する。なお、Windows10 と Ubuntu 18.04 でデュアルブートしていた VAIO から Windows を消し Ubuntu 18.04 からアップグレードをすると、画面がちらつくようになってしまい、その不具合を修正するのが面倒臭くなったので、同一ネットワークにいる macOS から ssh して基本的に開発を行う。
+- 開発環境には [Ubuntu 22.04.1 LTS](https://releases.ubuntu.com/22.04/) on VAIO + [Docker](https://www.docker.com/) (+ macOS) を使用する。
+  - なお、Windows10 と Ubuntu 18.04 でデュアルブートしていた VAIO から Windows を消し Ubuntu 18.04 からアップグレードをすると、画面がちらつくようになってしまい、その不具合を修正するのが面倒臭くなったので、同一ネットワークにいる macOS から ssh して基本的に開発を行う。
 
 - 開発用 Docker Image の作成
 
