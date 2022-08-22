@@ -2,10 +2,18 @@
 
 ## 開発環境の構築
 
-- 開発環境には [Ubuntu 22.04.1 LTS](https://releases.ubuntu.com/22.04/) + [Docker](https://www.docker.com/) + macOS を使用する
+- 開発環境には [Ubuntu 22.04.1 LTS](https://releases.ubuntu.com/22.04/) on VAIO + [Docker](https://www.docker.com/) (+ macOS) を使用する。なお、Windows10 と Ubuntu 18.04 でデュアルブートしていた VAIO から Windows を消し Ubuntu 18.04 からアップグレードをすると、画面がちらつくようになってしまい、その不具合を修正するのが面倒臭くなったので、同一ネットワークにいる macOS から ssh して基本的に開発を行う。
 
+- 開発用 Docker Image の作成
+
+```bash
+make build
 ```
-docker run --name h83069f -it --privileged -v /dev/ttyUSB0:/dev/ttyUSB0 -v $HOME/h83069f:/root otmb/h83069f bash
+
+- 開発用コンテナを起動
+
+```bash
+make run
 ```
 
 ## 開発環境の構成
@@ -15,6 +23,11 @@ docker run --name h83069f -it --privileged -v /dev/ttyUSB0:/dev/ttyUSB0 -v $HOME
 ```
 
 ![arch.jpeg](arch.jpeg)
+
+### 部品
+
+- [H8/3069F ネット対応マイコン LAN ボード (完成品](https://akizukidenshi.com/catalog/g/gK-01271/)
+- [超小型スイッチング AC アダプター5V1A AD-D50P100](https://akizukidenshi.com/catalog/g/gM-06096/)
 
 ## シリアルポートに関する設定
 
