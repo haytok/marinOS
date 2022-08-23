@@ -9,7 +9,7 @@
  VM の経験が浅く、上手く使いこなせなかったので今回は使用することを見送った。X11 転送や VM に ssh するのも試みたが、上手くいかなかった。以下に環境構築の際に参考にした記事を記す。
   - [12 ステップで作る組込み OS 自作入門 - Work Log](https://github.com/zulinx86/12steps-embedded-os)
   - [Linux カーネルを QEMU 上で起動する](http://kuniyu.jp/ja/blog/2/)
-- WSL2 や Ubuntu 22.04 を使った開発環境の構築も検討したが、どうしてもツール (binutils-2.19.1 と gcc-3.4.6) のビルドが上手くいかなかったので、最終的にこの 2 つのツールが入った Docker Image を見つけたので、その Image をもとに開発を行うことにした。(この過程を経て OSS に特定のパッチを適用する方法を学ぶことができて良かった :))
+- Cygwin や WSL2 や Ubuntu 22.04 を使った開発環境の構築も検討したが、どうしてもツール (binutils-2.19.1 と gcc-3.4.6) のビルドが上手くいかなかったので、最終的にこの 2 つのツールが入った Docker Image を見つけたので、その Image をもとに開発を行うことにした。(この過程を経て OSS に特定のパッチを適用する方法を学ぶことができて良かった :))
 - 以下のリポジトリも参考にしたが、binutils や gcc のバージョンが新しすぎで、後々のこのバージョンのせいで不具合等があると嫌だったので、今回は採用は見送った。
   - [12ステップで作る 組込みOS自作入門を進めていくための開発環境構築用Dockerfile](https://github.com/kjmatu/12step_self_embedded_os_dev_enviroment)
   - [古い gcc が欲しくて CentOS 5 の docker image を作った話](https://srz-zumix.blogspot.com/2021/02/gcc-centos-5-docker-image.html)
