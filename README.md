@@ -29,7 +29,8 @@ root@31b84c9c179c:/home/haytok/src/tools/h8write# gcc -o h8write h8write.c
 
 - OS のビルドと書き込み用のイメージの作成
 
-```bashroot@31b84c9c179c:/home/haytok/src/sample01/bootload# pwd
+```bash
+root@31b84c9c179c:/home/haytok/src/sample01/bootload# pwd
 /home/haytok/src/sample01/bootload
 root@31b84c9c179c:/home/haytok/src/sample01/bootload# ls
 Makefile  defines.h  ld.scr  lib.c  lib.h  lib.o  main.c  main.o  serial.c  serial.h  serial.o	startup.o  startup.s  vector.c	vector.o
