@@ -1,0 +1,13 @@
+{
+  "editor.formatOnSave": true,
+  "files.associations": {
+    "stdio.h": "c",
+    "stdlib.h": "c",
+    "assert.h": "c",
+    "__node_handle": "c",
+    "binary_tree.h": "c",
+    "__tuple": "c",
+    "array": "c",
+    "stdbool.h": "c"
+  }
+}
