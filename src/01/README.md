@@ -79,3 +79,65 @@ typedef unsigned int            uint_least32_t;
 
 - [ ] Makefile を作成して、ビルドできる環境が整ったら、`defines.h` の `#define NULL ((void *)0)` の定義を削除するとどうなるか挙動を確認してみる。ごちゃごちゃ考えてるより試した方が早いと思う。
 
+- `serial_init` の実装に関して
+  - シリアルデバイスの設定って何せなあかんか*想像*すると、デバイスを操作するためのアドレスがあって、そこに対して 0 やら 1 を書き込む操作をするんちゃうかな？？？と考えた。その想像で仕様書を眺めてみると、p.513 にシリアルデバイス (SCI : シリアルコミュニケーションインタフェース) のアドレスやレジスタの使用が記載されていたので、このドキュメントをベースに初期化の実装を行う。
+
+![01-2.png](01-2.png)
+
+| - | チャンネル 0 | チャンネル 1 | チャンネル 2 |
+|:-:|:----------:|:-------------:|:------:|
+| 先頭アドレス | 0xfffb0 | 0xfffb9 | 0xfffc0 |
+
+- なお、C 言語でアドレスを定義する際は、`0xffffb0` にして `f` を一つ追加する。これは、1 つ上の画像の `0xffffff` に合わせる。
+
+- レジスタは以下の 7 つがある。
+  - SMR / BRR / SCR / TDR / SSR / RDR / SCMR
+    - SMR (シリアルモードレジスタ)
+    - BRR (ビットレートレジスタ)
+    - SCR (シリアルコントロールレジスタ)
+    - TDR (トランスミットデータレジスタ)
+    - SSR (シリアルステータスレジスタ)
+    - RDR (レシーブデータレジスタ)
+    - SCMR (スマートカードモードレジスタ)
+  - なお、アドレスはアドバンストモード時のアドレス下位 20 ビットを示しています。
+
+- 構造体の配列の書き方が一瞬わからんかったけど、以下の記事を参考にしたら書ける。
+  - [構造体の配列](http://web.cc.yamaguchi-u.ac.jp/~fukuyo/prog2/603.html)
+
+```c
+#include <stdio.h>
+
+struct pop_dt {
+    ＜空欄＞
+};
+
+int main( void )
+{
+    struct pop_dt world[]= {
+        {"asia", 3769},
+        {"north_america", 498},
+        {"south_america", 357},
+        {"europe", 725},
+        {"africa", 832},
+        {"oceania", 31},
+        {"nowhere", 0}
+    };
+...
+}
+```
+
+```c
+static struct {
+  volatile struct hoge *fuga;
+} regs[3] = {
+  {
+    fuga // 型は volatile struct hoge
+  },
+  {
+    fuga // 型は volatile struct hoge
+  },
+  {
+    fuga // 型は volatile struct hoge
+  }
+}
+```
