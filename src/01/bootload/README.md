@@ -163,3 +163,24 @@ int serial_is_send_enable(int index)
     return (sci->ssr & (1 << 7));
 }
 ```
+
+- リンカスクリプトに関する情報は本書の p.90 に記載がある。
+- データ領域 : `初期値を持つ静的変数` が配置される。
+- BSS 領域 : `初期値を持たない静的変数` が配置される。
+  - BSS は `Block Started by Symbol` に由来するらしい。
+- const で定義した変数や文字列リテラルは `.rodata` セクションに配置される。
+
+- 開発環境のコンテナ内の gcc のバージョン
+
+```bash
+root@3056ea74c634:/# /usr/local/bin/h8300-elf-gcc --version
+h8300-elf-gcc (GCC) 3.4.6
+Copyright (C) 2006 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+```
+
+- -> 3.4.6 やった。
+
+- `man 5 elf` や `readelf コマンド` を活用して自作の ELF ファイル解析ブログラムを実装する。
+  - [elf(5) - Linux man page](https://linux.die.net/man/5/elf)
