@@ -8,7 +8,7 @@ int main(void)
 	// シリアルデバイスの初期化
 	serial_init(SERIAL_DEFAULT_DEVICE);
 
-	puts("Hello World :)");
+	puts("Hello World :)\n");
 
 	while (1)
 		;
