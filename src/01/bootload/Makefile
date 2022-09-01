@@ -24,14 +24,18 @@ OBJS += lib.o serial.o
 
 TARGET = kzload
 
+# このオプションの意味をあんまよくわかってない。
 CFLAGS = -Wall -mh -nostdinc -nostdlib -fno-builtin
 # CLFAGS += -mint32
+# このオプションの意味をあんまよくわかってない。
 CLFAGS += -I.
 # CLFAGS += -g
+# このオプションの意味をあんまよくわかってない。
 CLFAGS += -Os
 CLFAGS += -DKZLOAD
 
 # リンクオプション
+# あんまよくわかってない。
 LFLAGS = -static -T ld.scr -L.
 
 # なんのオプションか全くわからん。
@@ -40,21 +44,20 @@ LFLAGS = -static -T ld.scr -L.
 
 all :		$(TARGET)
 
-# cp $(TARGET) $(TARGET).elf の意味がわからん。
-# $(STRIP) $(TARGET)
+# この操作がどのような目的で行なっているかはわかっていない。
 $(TARGET): $(OBJS)
 		$(CC) $(OBJS) -o $(TARGET) $(CFLAGS) $(LFLAGS)
 		cp $(TARGET) $(TARGET).elf
 		$(STRIP) $(TARGET)
 
-# $< ってなんやったっけ？
 .c.o : $<
+		@echo "In .c.o, $< is " $<
 		$(CC) -c $(CFLAGS) $<
 
 .s.o : $<
+		@echo "In .s.o, $< is " $<
 		$(CC) -c $(CFLAGS) $<
 
-# この箇所の意味がわからん。
 $(TARGET).mot: $(TARGET)
 		$(OBJCOPY) -O srec $(TARGET) $(TARGET).mot
 
@@ -65,6 +68,3 @@ write: $(TARGET).mot
 
 clean:
 		rm -f $(OBJS) $(TARGET) $(TARGET).elf $(TARGET).mot
-
-# 一応ビルドできるとこまで実装できた。
-# マイコンにバイナリを書き込んで検証 / 疑問点の解消 / 書籍のサラッと見直し
