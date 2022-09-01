@@ -17,6 +17,8 @@ make build
 make run
 ```
 
+- `binutils-2.19.1` と `gcc-3.4.6` が内包されている。
+
 - 事前にコンテナ内で `/home/haytok/src/tools/h8write` に配置されている `h8write.c` をビルドしておく必要がある。
 
 ```bash
@@ -42,7 +44,8 @@ root@31b84c9c179c:/home/haytok/src/sample01/bootload# make image
 /usr/local/bin/h8300-elf-objcopy -O srec kzload kzload.mot
 ```
 
-- OS の書き込み (この際、ディップスイッチは on, on, off, on にしておく必要がある。)
+- OS の書き込み (この際、ディップスイッチは `on, on, off, on` にしておく必要がある。)
+  - OS の書き込みができない時はディップスイッチの設定が間違えている可能性があるので、まず初めに確認する。
 
 ```bash
 root@31b84c9c179c:/home/haytok/src/sample01/bootload# pwd
@@ -56,7 +59,15 @@ cp kzload kzload.elf
 root@31b84c9c179c:/home/haytok/src/sample01/bootload# make image
 /usr/local/bin/h8300-elf-objcopy -O srec kzload kzload.mot
 root@31b84c9c179c:/home/haytok/src/sample01/bootload# make write
-... (省略)
+../../tools/h8write/h8write -3069 -f20 kzload.mot /dev/ttyUSB0
+H8/3069F is ready!  2002/5/20 Yukio Mituiwa.
+writing
+WARNING:This Line dosen't start with"S".
+Address Size seems wrong
+WARNING:This Line dosen't start with"S".
+Address Size seems wrong
+......
+EEPROM Writing is successed.
 ```
 
 ## 開発環境の構成
@@ -74,7 +85,7 @@ root@31b84c9c179c:/home/haytok/src/sample01/bootload# make write
 
 ## シリアル通信を行う方法
 
-- 動作の確認にはシリアルポートにおける入出力を行う端末エミュレータを活用する。具体的には、[C-Kermit](http://www.columbia.edu/kermit/ck90.html) を使用する。
+- 動作の確認にはシリアルポートにおける入出力を行う端末エミュレータを活用する。具体的には、[C-Kermit](http://www.columbia.edu/kermit/ck90.html) を使用する。`kermit コマンド` を実行するのはホストの OS である。
 
 - インストール
 
@@ -148,7 +159,7 @@ haytok@haytok-VJS132:~/workspace/marinOS$ ls -la /dev/ttyUSB0
 crw-rw-rw- 1 root dialout 188, 0  8月 23 00:53 /dev/ttyUSB0
 ```
 
-- これにより、接続が可能になる。マイコンボードのリセットボタンを押下すると、以下のように Hello World が出力される。この際、ディップスイッチは on, off, on, of にしておく必要がある。
+- これにより、接続が可能になる。マイコンボードのリセットボタンを押下すると、以下のように Hello World が出力される。この際、ディップスイッチは `on, off, on, of` にしておく必要がある。
 
 ```bash
 haytok@haytok-VJS132:~$ kermit
@@ -163,6 +174,13 @@ Type the escape character followed by C to get back,
 or followed by ? to see other options.
 ----------------------------------------------------
 Hello World!
+```
+
+- kermit のプロセスの停止方法
+  - 毎回 kermit のプロセスの停止方法がわからなくなるので、以下のコマンドを使用すると良い。
+
+```bash
+ps aux | grep kermit | grep -v grep | awk '{ print "kill -9", $2 }' | sh
 ```
 
 ## 参考
