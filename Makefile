@@ -16,3 +16,7 @@ run:
 		-v ${PWD}:${HOME} \
 		${DOCKER_IMAGE_NAME} \
 		/bin/bash
+
+.PHONY: down
+down:
+	docker stop ${DOCKER_CONTAINER_NAME}
