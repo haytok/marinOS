@@ -1,6 +1,26 @@
 # 概要
 
-- 1 章の実装で気になった箇所のメモを行う。
+- 1 章で実装した結果とそのプロセスにおいて気になった点を Log に残す。
+
+## 実装した結果
+
+```bash
+haytok@haytok-VJS132:~$ kermit
+Removing stale lock /var/lock/LCK..ttyUSB0 (pid 212941 terminated)
+C-Kermit 9.0.305 OPEN SOURCE: Alpha.07, 24 Jan 2022, for Linux+SSL (64-bit)
+ Copyright (C) 1985, 2022,
+  Trustees of Columbia University in the City of New York.
+Type ? or HELP for help.
+(~/) C-Kermit>c
+Connecting to /dev/ttyUSB0, speed 9600
+ Escape character: Ctrl-\ (ASCII 28, FS): enabled
+Type the escape character followed by C to get back,
+or followed by ? to see other options.
+----------------------------------------------------
+Hello World :)Hell�Hello World :)Hello World :)Hello World :)Killed
+```
+
+- -> 以上の結果より、想定した挙動であることが確認できた :)
 
 ## メモ
 
