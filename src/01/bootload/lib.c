@@ -11,7 +11,7 @@ int putc(unsigned char c)
 		// 第一引数でどのシリアルポートで通信を行うかを決める？ 0, 1, 2 のインデックスがあり、初期値は 1 になっている。
 		serial_send_byte(SERIAL_DEFAULT_DEVICE, '\r');
 	}
-	serial_send_byte(SERIAL_DEFAULT_DEVICE, c);
+	return serial_send_byte(SERIAL_DEFAULT_DEVICE, c);
 }
 
 int puts(unsigned char *str)
