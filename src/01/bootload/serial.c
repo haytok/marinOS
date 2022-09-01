@@ -71,7 +71,7 @@ int serial_init(int index)
 	sci->smr = 0; // シリアル・モード・レジスタ
 	sci->brr = 64; // ビット・レート・レジスタ
 	sci->scr = H8_3069F_SCI_SCR_RE |
-		   H8_3069F_SCI_SCR_RE; // 送受信が可能な設定
+		   H8_3069F_SCI_SCR_TE; // 送受信が可能な設定
 	sci->ssr = 0; // シリアル・ステータス・レジスタ
 
 	return 0;
