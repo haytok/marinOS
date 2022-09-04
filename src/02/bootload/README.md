@@ -138,30 +138,6 @@ RETURN VALUE
        The strcpy() and strncpy() functions return a pointer to the destination string dest.
 ```
 
-- 
-
-```bash
-
-```
-
-- 
-
-```bash
-
-```
-
-- 
-
-```bash
-
-```
-
-- 
-
-```bash
-
-```
-
 ## `strcpy 関数` のデバッグに関して
 
 ### 問題
@@ -396,4 +372,32 @@ DESCRIPTION
 RETURN VALUE
        The strcmp() and strncmp() functions return an integer less than, equal to, or greater than  zero  if  s1  (or  the  first  n  bytes
        thereof) is found, respectively, to be less than, to match, or be greater than s2.
+```
+
+### putxval 関数
+
+- この関数はライブラリ関数にない独自の関数である。ライブラリ関数の `printf 関数` のようなもので、整数値を 16 進数で表示すための関数である。
+
+```c
+#include <stdio.h>
+
+int main(void)
+{
+	// unsigned long var = 0xa0a;
+       // 2570 は 16 進数表記では 0xa0a である。
+	unsigned long var = 2570;
+
+	printf("var %ld\n", var & 0xf); // 0xa が出力される。
+	var >>= 4;
+	printf("var %ld\n", var & 0xf); // 0x0 が出力される。
+	var >>= 4;
+	printf("var %ld\n", var & 0xf); // 0xa が出力される。
+}
+```
+
+```bash
+haytok@haytok-VJS132:~$ gcc -o main main.c && ./main
+var 10
+var 0
+var 10
 ```
