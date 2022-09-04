@@ -5,4 +5,5 @@ RUN { \
   echo "alias la='ls -A'"; \
   echo "alias l='ls -CF'"; \
   echo "PS1='\[\e[1;35m\][\u@\h \W]\\$ \[\e[m\]'"; \
+  echo "alias marinos='cd /home/haytok/src/'"; \
 } > ~/.bashrc
