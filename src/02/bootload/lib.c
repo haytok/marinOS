@@ -22,6 +22,31 @@ int puts(unsigned char *str)
 	return 0;
 }
 
+int putxval(unsigned long value, int column)
+{
+	// 現時点では固定で割り当てるしかない。malloc 等を実行できない。
+	char buf[9];
+	char *p;
+
+	p = buf + sizeof(buf) - 1;
+	*(p--) = '\0';
+
+	if (!value && !column)
+		column++;
+
+	while (value || column) {
+		*(p--) = "0123456789abcdef"[value & 0xf];
+		value >>= 4;
+		if (column)
+			column--;
+	}
+
+	// + 1 をしないと先頭に変な文字列が入る。
+	puts(p + 1);
+
+	return 0;
+}
+
 // The memset() function fills the first n bytes of the memory area pointed to by s with the constant byte c.
 void *memset(void *s, int c, long len)
 {

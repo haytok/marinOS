@@ -1,11 +1,15 @@
 #ifndef _LIB_H_INCLUDED_
 #define _LIB_H_INCLUDED_
 
+#define PRINT_NEWLINE() puts("\n");
+
 // int putc(int c, FILE *stream);
 int putc(unsigned char c);
 
 // int puts(const char *s);
 int puts(unsigned char *str);
+
+int putxval(unsigned long value, int column);
 
 // void *memset(void *s, int c, size_t n);
 void *memset(void *s, int c, long len);
@@ -27,7 +31,5 @@ int strcmp(const char *s1, const char *s2);
 
 // int strncmp(const char *s1, const char *s2, size_t n);
 int strncmp(const char *s1, const char *s2, int n);
-
-// putxval()
 
 #endif

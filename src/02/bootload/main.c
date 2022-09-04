@@ -9,6 +9,8 @@ int main(void)
 	serial_init(SERIAL_DEFAULT_DEVICE);
 
 	puts("Hello World :)\n");
+	putxval(0x0a0, 3);
+	PRINT_NEWLINE();
 
 	while (1)
 		;
