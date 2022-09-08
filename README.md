@@ -187,6 +187,7 @@ ps aux | grep kermit | grep -v grep | awk '{ print "kill -9", $2 }' | sh
 
 - [12ステップで作る 組込みOS自作入門](https://kozos.jp/books/makeos)
 - [H8/3069 F-ZTATTM ハードウェアマニュアル](http://www.picosystems.net/dl/ds/device/HD64F3069.pdf)
+- [Tool Interface Standard (TIS) Executable and Linking Format (ELF) Specification Version 1.2](https://refspecs.linuxfoundation.org/elf/elf.pdf)
 
 - [DockerでH8/3069Fビルド環境構築](https://qiita.com/mbotsu/items/dcba3f76551902f28bfb)
 - [otmb/h83069f](https://registry.hub.docker.com/r/otmb/h83069f)
