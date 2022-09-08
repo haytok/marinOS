@@ -187,3 +187,5 @@ Symbol table '.symtab' contains 70 entries:
 
 No version information found in this file.
 ```
+
+![images/01-1.png](images/01-1.png)
