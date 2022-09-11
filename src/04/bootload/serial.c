@@ -99,3 +99,23 @@ int serial_send_byte(int index, unsigned char b)
 
 	return 0;
 }
+
+int serial_is_recv_enable(int index)
+{
+	volatile struct h8_3069f_sci *sci = regs[index].sci;
+	return (sci->ssr & H8_3069F_SCI_SSR_RDRF);
+}
+
+unsigned char serial_recv_byte(int index)
+{
+	volatile struct h8_3069f_sci *sci = regs[index].sci;
+	unsigned char c;
+
+	while (!serial_is_recv_enable(index))
+		;
+
+	c = sci->rdr;
+	sci->ssr &= ~H8_3069F_SCI_SSR_RDRF;
+
+	return c;
+}

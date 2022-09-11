@@ -22,6 +22,34 @@ int puts(unsigned char *str)
 	return 0;
 }
 
+unsigned char getc(void)
+{
+	unsigned char c = serial_recv_byte(SERIAL_DEFAULT_DEVICE);
+	// そもそも、\r の文字列が PC 側から飛んでくることがあるので、そのケアを実装する。
+	// 改行周りの挙動がイマイチわかっていない。
+	c = (c == '\r') ? '\n' : c;
+	// エコーバックの実装。マイコンは文字列を受け取っているだけで、その受け取った文字列を VAIO 側で出力させるには putc 関数を使用してエコーバックをする必要がある。
+	// なので、この処理をコメントアウトすると、入力した文字列が何も出力されない気がするが ...
+	// -> 合ってた、なんも出力されんかった！
+	putc(c);
+	return c;
+}
+
+int gets(unsigned char *buf)
+{
+	unsigned int c;
+	int i = 0;
+	do {
+		c = getc();
+		// 改行周りの挙動がイマイチわかっていない。
+		if (c == '\n') {
+			c = '\0';
+		}
+		buf[i++] = c;
+	} while (c);
+	return i - 1;
+}
+
 int putxval(unsigned long value, int column)
 {
 	// 現時点では固定で割り当てるしかない。malloc 等を実行できない。

@@ -9,6 +9,13 @@ int putc(unsigned char c);
 // int puts(const char *s);
 int puts(unsigned char *str);
 
+// int getc(FILE *stream);
+unsigned char getc(void);
+
+// char *gets(char *s);
+// このライブラリ関数では読み出した文字列の長さを返している。
+int gets(unsigned char *buf);
+
 int putxval(unsigned long value, int column);
 
 // void *memset(void *s, int c, size_t n);

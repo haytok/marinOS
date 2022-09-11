@@ -36,9 +36,21 @@ int main(void)
 	PRINT_NEWLINE();
 	value = 11;
 	putxval(value, 0);
+	PRINT_NEWLINE();
 
-	while (1)
-		;
+	unsigned char buf[16];
+
+	while (1) {
+		// VAIO 側では以下の puts() 関数が実行されてから、処理の受け取り待ちの状態になる。
+		puts("marinos> ");
+		gets(buf);
+		if (strncmp(buf, "echo", 4) == 0) {
+			puts(buf + 4);
+			PRINT_NEWLINE();
+		} else {
+			puts("unknown.\n");
+		}
+	}
 
 	return 0;
 }
