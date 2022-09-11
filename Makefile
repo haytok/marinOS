@@ -17,6 +17,10 @@ run:
 		${DOCKER_IMAGE_NAME} \
 		/bin/bash
 
+.PHONY: exec
+exec:
+	docker exec -it ${DOCKER_CONTAINER_NAME} /bin/bash
+
 .PHONY: down
 down:
 	docker stop ${DOCKER_CONTAINER_NAME}
