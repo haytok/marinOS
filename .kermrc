@@ -1,0 +1,8 @@
+set line /dev/ttyUSB0
+set speed 9600
+set serial 8N1
+set stop-bits 1
+set flow-control none
+set parity none
+set carrier-watch off
+set protocol xmodem rx {rx -a} {sx %s} {sx -a %s} rx rx
