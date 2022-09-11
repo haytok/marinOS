@@ -196,7 +196,7 @@ ps aux | grep kermit | grep -v grep | awk '{ print "kill -9", $2 }' | sh
 - [h83069f](https://github.com/otmb/h83069f)
   - Docker Image を作成するのためのソースコード
 
-##　感想
+## 感想
 
 - 良かった点
   - これまで勉強してきたこと (アセンブリ言語等) の復習 + 新しい知識の取得ができた点
