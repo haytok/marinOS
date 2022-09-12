@@ -191,3 +191,11 @@ send defines.h
 +===================+
 
 - jsr : 指定されたアドレスへサブルーチンを分岐する。
+
+## XMODEM プロトコルの受信側の機能を作成するにあたって参考にした記事
+
+- [XMODEM](https://ja.m.wikipedia.org/wiki/XMODEM)
+- [XModem Protocol with CRC](https://web.mit.edu/6.115/www/amulet/xmodem.htm)
+- [ssuzukiの日記](https://s-suzuki.hatenadiary.org/entry/20150104/1420390724)
+- [XMODEM/YMODEM Protocol Reference](https://techheap.packetizer.com/communication/modems/xmodem-ymodem_reference.html)
+- [XMODEM/YMODEM PROTOCOL REFERENCE](http://pauillac.inria.fr/~doligez/zmodem/ymodem.txt)
