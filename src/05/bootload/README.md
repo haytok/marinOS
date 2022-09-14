@@ -21,15 +21,6 @@
 
 ![images/elf.png](images/elf.png)
 
-```
-Elf32_Addr 4 4 Unsigned program address
-Elf32_Half 2 2 Unsigned medium integer
-Elf32_Off 4 4 Unsigned file offset
-Elf32_Sword 4 4 Signed large integer
-Elf32_Word 4 4 Unsigned large integer
-unsigned char 1 1 Unsigned small integer
-```
-
 - `kzload.elf` の構造 (readelf -a kzload.elf の出力結果)
 
 ```bash
@@ -239,6 +230,17 @@ Symbol table '.symtab' contains 142 entries:
 No version information found in this file.
 ```
 
+- ELF の仕様書で定義されているビット幅
+
+```
+Elf32_Addr 4 4 Unsigned program address
+Elf32_Half 2 2 Unsigned medium integer
+Elf32_Off 4 4 Unsigned file offset
+Elf32_Sword 4 4 Signed large integer
+Elf32_Word 4 4 Unsigned large integer
+unsigned char 1 1 Unsigned small integer
+```
+
 ```c
 	struct {
 		unsigned char magic[4];
@@ -258,3 +260,42 @@ No version information found in this file.
 - -> この引用からもわかるように EI_PAD は仕様書的には Padding の役割でしかないっぽい。
 
 - 思想の違いからか、仕様書の構造体のフィールド名と書籍のフィールド名が異なる。正直、仕様書に命名規則を合わせたかったが、後々めんどくさいことになってもアレなので、書籍に命名規則を合わせることにした。
+
+> e_phentsize This member holds the size in bytes of one entry in the file's program header table;
+all entries are the same size.
+
+- -> プログラムヘッダの全てのエントリは同じサイズであることが書かれている。
+
+> The array element specifies a loadable segment, described by p_filesz and
+p_memsz. The bytes from the file are mapped to the beginning of the memory
+segment. If the segment's memory size (p_memsz) is larger than the file size
+(p_filesz), the "extra'' bytes are defined to hold the value 0 and to follow the
+segment's initialized area. The file size may not be larger than the memory size.
+Loadable segment entries in the program header table appear in ascending order,
+sorted on the p_vaddr member.
+
+- -> Program Header の type が Load の状態、つまり 1 になっていると、Load 可能であることを表している。
+- -> 逆に言うと、この type を確認すると、unused な領域なのか動的リンク情報を示しているかなどを確認することができる。
+
+- 以下の int の箇所を long にするとエラーになった。原因はわからん。
+
+```c
+static int elf_load_program(struct elf_header *header)
+{
+	// long にするとエラーになった ... :(
+	int i;
+...
+```
+
+```bash
+elf.o: In function `.L10':
+elf.c:(.text+0x15b): undefined reference to `___mulsi3'
+collect2: ld returned 1 exit status
+make: *** [kzload] Error 1
+```
+
+- 4 章で転送したやり方をもとに、ELF ファイルを転送する。
+
+```bash
+send kzload.elf
+```
