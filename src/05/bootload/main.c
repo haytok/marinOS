@@ -3,6 +3,7 @@
 #include "serial.h"
 #include "lib.h"
 #include "xmodem.h"
+#include "elf.h"
 
 volatile int value_1;
 volatile int value = 10;
@@ -92,6 +93,8 @@ int main(void)
 			putxval(size, 0);
 			puts("\n");
 			dump(loadbuf, size);
+		} else if (!strcmp(buf, "run")) {
+			elf_load(loadbuf);
 		} else if (strncmp(buf, "echo", 4) == 0) {
 			puts(buf + 4);
 			PRINT_NEWLINE();
