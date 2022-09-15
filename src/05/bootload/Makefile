@@ -30,13 +30,13 @@ TARGET = kzload
 # -fno-buildin : コンパイラのビルドイン関数を使用しないためのオプション
 # -mint32 : int を 32bit とするためのオプション
 CFLAGS = -Wall -mh -nostdinc -nostdlib -fno-builtin
-# CLFAGS += -mint32
+# CFLAGS += -mint32
 # -I : ヘッダファイルのの検索先を指定するためのオプション
-CLFAGS += -I.
-# CLFAGS += -g
+CFLAGS += -I.
+# CFLAGS += -g
 # -Os : サイズ制約の最適化を行うためのオプション
-CLFAGS += -Os
-CLFAGS += -DKZLOAD
+CFLAGS += -Os
+CFLAGS += -DKZLOAD
 
 # リンクオプション
 # -static : 全て静的リンクするためのオプション
