@@ -99,7 +99,7 @@ static int elf_load_program(struct elf_header *header)
 		putxval(phdr->flags, 2);
 		puts("  ");
 		putxval(phdr->align, 2);
-		puts("  ");
+		puts("\n");
 	}
 
 	return 0;
