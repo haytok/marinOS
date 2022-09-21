@@ -16,7 +16,7 @@
 
 ## メモ
 
-### 
+### thread_run　関数内の変数 thread_stack の値に関して
 
 - 以下のように `thread_stack` の値が変化するかどうかを確認するための検証を行う。
 
@@ -126,3 +126,13 @@ thread_stack 55a03020
 ```
 
 - -> 確かに `stacksize` の分だけ `thread_stack` の値が増えているのが確認できた。なお、`thread_stack` に `static` をつけないと、増えることはなかった。
+
+- `static 修飾子`に関して
+
+> ローカル変数は通常、関数呼び出しとともに生成され、returnされることで破棄されます。しかし、static付きのローカル変数は破棄されなくなります。
+
+- [C言語 staticを変数と関数に付ける価値【保護の仕組みを解説】](https://monozukuri-c.com/langc-funclist-static/)
+
+#### まとめ
+
+- `thread_run 関数` 内の`変数 thread_stack` の値は `thread_run 関数` が呼び出されるたびにインクリメントされていき、別の領域のスタックが確保される。(これがわかったのはデカい。)
