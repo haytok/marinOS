@@ -15,7 +15,7 @@ static int start_threads(int argc, char *argv[])
 	test09_3_id = kz_run(test09_3_main, "test09_3", 3, 0x100, 0, NULL);
 
 	kz_chpri(15);
-	// INTR_ENABLE; /* �����ͭ���ˤ��� */
+	INTR_ENABLE; /* �����ͭ���ˤ��� */
 	while (1) {
 		asm volatile("sleep"); /* �����ϥ⡼�ɤ˰ܹ� */
 	}

@@ -365,7 +365,7 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
    * (dispatch()�ؿ������Τ�startup.s�ˤ��ꡤ������֥�ǵ��Ҥ���Ƥ���)
    */
 	// これをコメントアウトしてみる。多分、処理が次に映らんはず。
-	// dispatch(&current->context);
+	dispatch(&current->context);
 	/* �����ˤ��֤äƤ��ʤ� */
 }
 
