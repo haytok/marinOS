@@ -4,6 +4,7 @@
 #include "interrupt.h"
 #include "syscall.h"
 #include "lib.h"
+#include "syscall.h"
 
 #define THREAD_NUM 6
 #define PRIORITY_NUM 16
@@ -334,8 +335,17 @@ static void softerr_intr(void)
 }
 
 /* ����߽����������ؿ� */
+// この引数の type は bootloader の inerrupt 内の handler から呼び出される。
 static void thread_intr(softvec_type_t type, unsigned long sp)
 {
+	if (type == SOFTVEC_TYPE_SYSCALL) {
+		puts("in thread_intr from os\n");
+		putxval(KZ_SYSCALL_TYPE_CHPRI, 0);
+		puts("\n");
+		putxval(type, 0);
+		puts("\n");
+		puts("in thread_intr from os\n");
+	}
 	/* �����ȡ�����åɤΥ���ƥ����Ȥ���¸���� */
 	current->context.sp = sp;
 
@@ -354,7 +364,8 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
    * ����åɤΥǥ����ѥå�
    * (dispatch()�ؿ������Τ�startup.s�ˤ��ꡤ������֥�ǵ��Ҥ���Ƥ���)
    */
-	dispatch(&current->context);
+	// これをコメントアウトしてみる。多分、処理が次に映らんはず。
+	// dispatch(&current->context);
 	/* �����ˤ��֤äƤ��ʤ� */
 }
 
@@ -398,5 +409,8 @@ void kz_syscall(kz_syscall_type_t type, kz_syscall_param_t *param)
 {
 	current->syscall.type = type;
 	current->syscall.param = param;
+	if (type == KZ_SYSCALL_TYPE_CHPRI) {
+		puts("in kz_syscall\n");
+	}
 	asm volatile("trapa #0"); /* �ȥ�å׳����ȯ�� */
 }

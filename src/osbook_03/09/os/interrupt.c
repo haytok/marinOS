@@ -1,30 +1,31 @@
 #include "defines.h"
 #include "intr.h"
 #include "interrupt.h"
+#include "syscall.h"
 
-/* ¥½¥Õ¥È¥¦¥¨¥¢¡¦³ä¹þ¤ß¥Ù¥¯¥¿¤Î½é´ü²½ */
+/* ï¿½ï¿½ï¿½Õ¥È¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¥Ù¥ï¿½ï¿½ï¿½ï¿½Î½ï¿½ï¿½ï¿½ï¿½ */
 int softvec_init(void)
 {
-  int type;
-  for (type = 0; type < SOFTVEC_TYPE_NUM; type++)
-    softvec_setintr(type, NULL);
-  return 0;
+	int type;
+	for (type = 0; type < SOFTVEC_TYPE_NUM; type++)
+		softvec_setintr(type, NULL);
+	return 0;
 }
 
-/* ¥½¥Õ¥È¥¦¥¨¥¢¡¦³ä¹þ¤ß¥Ù¥¯¥¿¤ÎÀßÄê */
+/* ï¿½ï¿½ï¿½Õ¥È¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¥Ù¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 int softvec_setintr(softvec_type_t type, softvec_handler_t handler)
 {
-  SOFTVECS[type] = handler;
-  return 0;
+	SOFTVECS[type] = handler;
+	return 0;
 }
 
 /*
- * ¶¦ÄÌ³ä¹þ¤ß¥Ï¥ó¥É¥é¡¥
- * ¥½¥Õ¥È¥¦¥¨¥¢¡¦³ä¹þ¤ß¥Ù¥¯¥¿¤ò¸«¤Æ¡¤³Æ¥Ï¥ó¥É¥é¤ËÊ¬´ô¤¹¤ë¡¥
+ * ï¿½ï¿½ï¿½Ì³ï¿½ï¿½ï¿½ß¥Ï¥ï¿½É¥é¡¥
+ * ï¿½ï¿½ï¿½Õ¥È¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¥Ù¥ï¿½ï¿½ï¿½ï¿½ò¸«¤Æ¡ï¿½ï¿½Æ¥Ï¥ï¿½É¥ï¿½ï¿½Ê¬ï¿½ï¿½ï¿½ï¿½ï¿½ë¡¥
  */
 void interrupt(softvec_type_t type, unsigned long sp)
 {
-  softvec_handler_t handler = SOFTVECS[type];
-  if (handler)
-    handler(type, sp);
+	softvec_handler_t handler = SOFTVECS[type];
+	if (handler)
+		handler(type, sp);
 }

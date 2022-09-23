@@ -7,31 +7,31 @@ kz_thread_id_t test09_1_id;
 kz_thread_id_t test09_2_id;
 kz_thread_id_t test09_3_id;
 
-/* ¥·¥¹¥Æ¥à¡¦¥¿¥¹¥¯¤È¥æ¡¼¥¶¡¦¥¹¥ì¥Ã¥É¤Îµ¯Æ° */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½Æ¥à¡¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥æ¡¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¥É¤Îµï¿½Æ° */
 static int start_threads(int argc, char *argv[])
 {
-  test09_1_id = kz_run(test09_1_main, "test09_1",  1, 0x100, 0, NULL);
-  test09_2_id = kz_run(test09_2_main, "test09_2",  2, 0x100, 0, NULL);
-  test09_3_id = kz_run(test09_3_main, "test09_3",  3, 0x100, 0, NULL);
+	test09_1_id = kz_run(test09_1_main, "test09_1", 1, 0x100, 0, NULL);
+	test09_2_id = kz_run(test09_2_main, "test09_2", 2, 0x100, 0, NULL);
+	test09_3_id = kz_run(test09_3_main, "test09_3", 3, 0x100, 0, NULL);
 
-  kz_chpri(15); /* Í¥Àè½ç°Ì¤ò²¼¤²¤Æ¡¤¥¢¥¤¥É¥ë¥¹¥ì¥Ã¥É¤Ë°Ü¹Ô¤¹¤ë */
-  INTR_ENABLE; /* ³ä¹þ¤ßÍ­¸ú¤Ë¤¹¤ë */
-  while (1) {
-    asm volatile ("sleep"); /* ¾ÊÅÅÎÏ¥â¡¼¥É¤Ë°Ü¹Ô */
-  }
+	kz_chpri(15);
+	// INTR_ENABLE; /* ï¿½ï¿½ï¿½ï¿½ï¿½Í­ï¿½ï¿½ï¿½Ë¤ï¿½ï¿½ï¿½ */
+	while (1) {
+		asm volatile("sleep"); /* ï¿½ï¿½ï¿½ï¿½ï¿½Ï¥â¡¼ï¿½É¤Ë°Ü¹ï¿½ */
+	}
 
-  return 0;
+	return 0;
 }
 
 int main(void)
 {
-  INTR_DISABLE; /* ³ä¹þ¤ßÌµ¸ú¤Ë¤¹¤ë */
+	INTR_DISABLE; /* ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï¿½Ë¤ï¿½ï¿½ï¿½ */
 
-  puts("kozos boot succeed!\n");
+	puts("kozos boot succeed!\n");
 
-  /* OS¤ÎÆ°ºî³«»Ï */
-  kz_start(start_threads, "idle", 0, 0x100, 0, NULL);
-  /* ¤³¤³¤Ë¤ÏÌá¤Ã¤Æ¤³¤Ê¤¤ */
+	/* OSï¿½ï¿½Æ°ï¿½î³«ï¿½ï¿½ */
+	kz_start(start_threads, "idle", 0, 0x100, 0, NULL);
+	/* ï¿½ï¿½ï¿½ï¿½ï¿½Ë¤ï¿½ï¿½ï¿½Ã¤Æ¤ï¿½ï¿½Ê¤ï¿½ */
 
-  return 0;
+	return 0;
 }
