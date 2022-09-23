@@ -16,6 +16,118 @@
 
 ## メモ
 
+### 用語
+
+- プリエンプティブ方式は、プリエンプションとも呼ばれ、実行中のタスクを中断しながら、別のタスクに CPU を割り当てて処理を行う方式です。
+
+### 仕様書
+
+![images/9-1.png](images/9-1.png)
+
+### Dbug メモ
+
+- 自分が紙の上で考えた処理の流れは大まかにはあっていた。(細かい部分は間違っていたが ...)
+
+- OS 側の main.c の `INTR_ENABLE` を実行しなくても、スレッド自体は実行可能。(外部割り込みとかで重要となってくる処理なんかな？いまいちこの処理がない時の問題点がわからん。)
+- OS 側の main.c の `kz_chpri(15);` を実行しないと、3 つのサンプルのスレッドは実行されない。(<- これは当たり前)
+  - この中で最終的に呼ばれている `thread_intr` 内の `dispatch` を呼び出さないと、3 つのサンプルのスレッドは実行すらされない。(<- 想定通りだった。)
+  - `kz_syscall` で呼び出される `asm volatile("trapa #0");` は最終的に bootloader 側の `interrupt` を呼び出す。OS 側の `interrupt` に Debug コードを仕込んでも出力されなかったのはこれのせい。最終的に呼び出されるハンドラ `SOFTVECS[type](type, sp)` (`SOFTVECS[type]` は存在している前提) は OS 側で `SOFTVECS` に定義される。
+  - その定義箇所は
+
+- OS 側の関数
+
+```c
+void kz_syscall(kz_syscall_type_t type, kz_syscall_param_t *param)
+{
+	current->syscall.type = type;
+	current->syscall.param = param;
+	if (type == KZ_SYSCALL_TYPE_CHPRI) {
+		puts("in kz_syscall\n");
+	}
+	asm volatile("trapa #0");
+}
+```
+
+- bootloader 側の関数
+
+```c
+void interrupt(softvec_type_t type, unsigned long sp)
+{
+  softvec_handler_t handler = SOFTVECS[type];
+  if (handler)
+    handler(type, sp);
+}
+```
+
+- OS 側の関数
+
+```c
+void kz_start(kz_func_t func, char *name, int priority, int stacksize, int argc, char *argv[])
+{
+... (省略)
+	setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr);
+	setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr);
+... (省略)
+}
+```
+
+- OS 側の関数
+
+```c
+static int setintr(softvec_type_t type, kz_handler_t handler)
+{
+	static void thread_intr(softvec_type_t type, unsigned long sp);
+
+	// SOFTVECS[type] に thread_intr を代入している。type は SOFTVEC_TYPE_SYSCALL と SOFTVEC_TYPE_SOFTERR である。
+	softvec_setintr(type, thread_intr);
+
+	// syscall_intr や softerr_intr を SOFTVEC_TYPE_SYSCALL や SOFTVEC_TYPE_SOFTERR の handlers に定義する。
+	handlers[type] = handler;
+
+	return 0;
+}
+```
+
+- OS 側の関数
+
+```c
+int softvec_setintr(softvec_type_t type, softvec_handler_t handler)
+{
+	SOFTVECS[type] = handler;
+	return 0;
+}
+```
+
+- OS 側の関数
+
+```c
+static void thread_intr(softvec_type_t type, unsigned long sp)
+{
+	// kz_chpri を実行すると、この if 文を通る。
+	if (type == SOFTVEC_TYPE_SYSCALL) {
+		puts("in thread_intr from os\n");
+		putxval(KZ_SYSCALL_TYPE_CHPRI, 0);
+		puts("\n");
+		putxval(type, 0);
+		puts("\n");
+		puts("in thread_intr from os\n");
+	}
+
+	current->context.sp = sp;
+
+	// syscall_intr や softerr_intr を呼び出している。
+	// syscall_intr が呼び出される場合は、システムコール (番号) に応じた current の処理が行われる。
+	// softerr_intr が呼び出される場合は、exit する。
+	if (handlers[type])
+		handlers[type]();
+
+	schedule();
+
+	// これをコメントアウトしてみると、他のサンプルの 3 つのスレッドが実行されへん。
+	dispatch(&current->context);
+}
+```
+
 ### thread_run　関数内の変数 thread_stack の値に関して
 
 - 以下のように `thread_stack` の値が変化するかどうかを確認するための検証を行う。
