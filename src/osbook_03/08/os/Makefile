@@ -17,12 +17,12 @@ OBJS  = startup.o main.o interrupt.o
 OBJS += lib.o serial.o
 
 # sources of kozos
-OBJS += kozos.o syscall.o test08_1.o
+OBJS += kozos.o syscall.o test08_1.o test08_2.o test08_3.o
 
 TARGET = kozos
 
 CFLAGS = -Wall -mh -nostdinc -nostdlib -fno-builtin
-#CFLAGS += -mint32 # int¤ò32¥Ó¥Ã¥È¤Ë¤¹¤ë¤È³Ý»»¡¿³ä»»¤¬¤Ç¤­¤Ê¤¯¤Ê¤ë
+#CFLAGS += -mint32 # intï¿½ï¿½32ï¿½Ó¥Ã¥È¤Ë¤ï¿½ï¿½ï¿½È³Ý»ï¿½ï¿½ï¿½ï¿½ä»»ï¿½ï¿½ï¿½Ç¤ï¿½ï¿½Ê¤ï¿½ï¿½Ê¤ï¿½
 CFLAGS += -I.
 #CFLAGS += -g
 CFLAGS += -Os

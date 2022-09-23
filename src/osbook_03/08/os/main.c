@@ -3,22 +3,24 @@
 #include "interrupt.h"
 #include "lib.h"
 
-/* ¥·¥¹¥Æ¥à¡¦¥¿¥¹¥¯¤È¥æ¡¼¥¶¡¦¥¹¥ì¥Ã¥É¤Îµ¯Æ° */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½Æ¥à¡¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥æ¡¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¥É¤Îµï¿½Æ° */
 static int start_threads(int argc, char *argv[])
 {
-  kz_run(test08_1_main, "command", 0x100, 0, NULL);
-  return 0;
+	kz_run(test08_1_main, "command", 0x100, 0, NULL);
+	kz_run(test08_2_main, "command", 0x100, 0, NULL);
+	kz_run(test08_3_main, "command", 0x100, 0, NULL);
+	return 0;
 }
 
 int main(void)
 {
-  INTR_DISABLE; /* ³ä¹þ¤ßÌµ¸ú¤Ë¤¹¤ë */
+	INTR_DISABLE; /* ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï¿½Ë¤ï¿½ï¿½ï¿½ */
 
-  puts("kozos boot succeed!\n");
+	puts("kozos boot succeed!\n");
 
-  /* OS¤ÎÆ°ºî³«»Ï */
-  kz_start(start_threads, "start", 0x100, 0, NULL);
-  /* ¤³¤³¤Ë¤ÏÌá¤Ã¤Æ¤³¤Ê¤¤ */
+	/* OSï¿½ï¿½Æ°ï¿½î³«ï¿½ï¿½ */
+	kz_start(start_threads, "start", 0x100, 0, NULL);
+	/* ï¿½ï¿½ï¿½ï¿½ï¿½Ë¤ï¿½ï¿½ï¿½Ã¤Æ¤ï¿½ï¿½Ê¤ï¿½ */
 
-  return 0;
+	return 0;
 }

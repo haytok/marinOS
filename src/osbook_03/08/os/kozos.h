@@ -4,18 +4,20 @@
 #include "defines.h"
 #include "syscall.h"
 
-/* ¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë */
-kz_thread_id_t kz_run(kz_func_t func, char *name, int stacksize,
-		      int argc, char *argv[]);
+/* ï¿½ï¿½ï¿½ï¿½ï¿½Æ¥à¡¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+kz_thread_id_t kz_run(kz_func_t func, char *name, int stacksize, int argc,
+		      char *argv[]);
 void kz_exit(void);
 
-/* ¥é¥¤¥Ö¥é¥ê´Ø¿ô */
-void kz_start(kz_func_t func, char *name, int stacksize,
-	      int argc, char *argv[]);
+/* ï¿½é¥¤ï¿½Ö¥ï¿½ï¿½Ø¿ï¿½ */
+void kz_start(kz_func_t func, char *name, int stacksize, int argc,
+	      char *argv[]);
 void kz_sysdown(void);
 void kz_syscall(kz_syscall_type_t type, kz_syscall_param_t *param);
 
-/* ¥æ¡¼¥¶¡¦¥¹¥ì¥Ã¥É */
+/* ï¿½æ¡¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¥ï¿½ */
 int test08_1_main(int argc, char *argv[]);
+int test08_2_main(int argc, char *argv[]);
+int test08_3_main(int argc, char *argv[]);
 
 #endif
