@@ -15,14 +15,10 @@ OBJDUMP = $(BINDIR)/$(ADDNAME)objdump
 RANLIB = $(BINDIR)/$(ADDNAME)ranlib
 STRIP = $(BINDIR)/$(ADDNAME)strip
 
-H8WRITE = ../../tools/h8write/h8write
+OBJS = startup.o main.o
+OBJS += lib.o serial.o
 
-H8WRITE_SERDEV = /dev/ttyUSB0
-
-OBJS = vector.o startup.o main.o
-OBJS += lib.o serial.o xmodem.o elf.o
-
-TARGET = kzload
+TARGET = marinos
 
 # -mh : H8/300H 用のコードを出力するためのオプション
 # -nostdinc : システムのヘッダファイルを使用しないためのオプション
@@ -36,13 +32,13 @@ CFLAGS += -I.
 # CFLAGS += -g
 # -Os : サイズ制約の最適化を行うためのオプション
 CFLAGS += -Os
-CFLAGS += -DKZLOAD
+CFLAGS += -DMARINOS
 
 # リンクオプション
 # -static : 全て静的リンクするためのオプション
 # -T : リンカスクリプトを指定するためのオプション
 # -L : ライブラリの検索先を指定するためのオプション
-LFLAGS = -static -T ld.scr -L.
+LFLAGS = -static -T ld.ld -L.
 
 # なんのオプションか全くわからん。
 .SUFFIXES: .c .o
@@ -64,13 +60,5 @@ $(TARGET): $(OBJS)
 		@echo "In .s.o, $< is " $<
 		$(CC) -c $(CFLAGS) $<
 
-$(TARGET).mot: $(TARGET)
-		$(OBJCOPY) -O srec $(TARGET) $(TARGET).mot
-
-image: $(TARGET).mot
-
-write: $(TARGET).mot
-	$(H8WRITE) -3069 -f20 $(TARGET).mot $(H8WRITE_SERDEV)
-
 clean:
-		rm -f $(OBJS) $(TARGET) $(TARGET).elf $(TARGET).mot core.*
+		rm -f $(OBJS) $(TARGET) $(TARGET).elf core.*
