@@ -42,7 +42,7 @@ CFLAGS += -DKZLOAD
 # -static : 全て静的リンクするためのオプション
 # -T : リンカスクリプトを指定するためのオプション
 # -L : ライブラリの検索先を指定するためのオプション
-LFLAGS = -static -T ld.scr -L.
+LFLAGS = -static -T ld.ld -L.
 
 # なんのオプションか全くわからん。
 .SUFFIXES: .c .o
