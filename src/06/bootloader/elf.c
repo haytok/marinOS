@@ -86,36 +86,29 @@ static int elf_load_program(struct elf_header *header)
 			continue;
 		}
 
-		putxval(phdr->offset, 6);
-		puts("  ");
-		putxval(phdr->virtual_addr, 8);
-		puts("  ");
-		putxval(phdr->physical_addr, 8);
-		puts("  ");
-		putxval(phdr->file_size, 5);
-		puts("  ");
-		putxval(phdr->memory_size, 5);
-		puts("  ");
-		putxval(phdr->flags, 2);
-		puts("  ");
-		putxval(phdr->align, 2);
-		puts("\n");
+		// VAIO 側から物理的に buffer に転送されてきたファイルを解析して RAM の先頭の方へコピーする
+		// memcpy : dst, src, n
+		// phdr->physical_addr は修正後の ld.scr によって RAM 側のアドレスに変更されている。
+		memcpy((char *)phdr->physical_addr,
+		       (char *)header + phdr->offset, phdr->file_size);
+		memset((char *)phdr->physical_addr + phdr->file_size, 0,
+		       phdr->memory_size - phdr->file_size);
 	}
 
 	return 0;
 }
 
-int elf_load(char *buf)
+char *elf_load(char *buf)
 {
 	struct elf_header *header = (struct elf_header *)buf;
 
 	if (elf_check(header) < 0) {
-		return -1;
+		return NULL;
 	}
 
 	if (elf_load_program(header) < 0) {
-		return -1;
+		return NULL;
 	}
 
-	return 0;
+	return (char *)header->entry_point;
 }

@@ -64,6 +64,9 @@ int main(void)
 	// VAIO 側から受け取ったデータを保存する RAM の領域のアドレスを保持する。
 	extern int buffer_start;
 	static long size = -1;
+	char *entry_point;
+	// Entry Point 用の関数ポインタを定義
+	void (*f)(void);
 
 	// extern int data_start;
 	// int *p;
@@ -75,7 +78,7 @@ int main(void)
 
 	while (1) {
 		// VAIO 側では以下の puts() 関数が実行されてから、処理の受け取り待ちの状態になる。
-		puts("marinos> ");
+		puts("boot loader> ");
 		gets(buf);
 
 		if (!strcmp(buf, "load")) {
@@ -94,10 +97,15 @@ int main(void)
 			puts("\n");
 			dump(loadbuf, size);
 		} else if (!strcmp(buf, "run")) {
-			elf_load(loadbuf);
-		} else if (strncmp(buf, "echo", 4) == 0) {
-			puts(buf + 4);
+			entry_point = elf_load(loadbuf);
+			if (!entry_point) {
+				puts("run error (entry_point is NULL.)\n");
+			}
+			puts("starting from entry point: \n");
+			putxval((unsigned long)entry_point, 0);
 			PRINT_NEWLINE();
+			f = (void (*)(void))entry_point;
+			f();
 		} else {
 			puts("unknown.\n");
 		}
