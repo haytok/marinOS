@@ -19,7 +19,7 @@ H8WRITE = ../../tools/h8write/h8write
 
 H8WRITE_SERDEV = /dev/ttyUSB0
 
-OBJS = vector.o startup.o main.o
+OBJS = vector.o startup.o intr.o main.o interrupt.o
 OBJS += lib.o serial.o xmodem.o elf.o
 
 TARGET = kzload
@@ -47,6 +47,7 @@ LFLAGS = -static -T ld.ld -L.
 # なんのオプションか全くわからん。
 .SUFFIXES: .c .o
 .SUFFIXES: .s .o
+.SUFFIXES: .S .o
 
 all :		$(TARGET)
 
@@ -62,6 +63,10 @@ $(TARGET): $(OBJS)
 
 .s.o : $<
 		@echo "In .s.o, $< is " $<
+		$(CC) -c $(CFLAGS) $<
+
+.S.o : $<
+		@echo "In .S.o, $< is " $<
 		$(CC) -c $(CFLAGS) $<
 
 $(TARGET).mot: $(TARGET)

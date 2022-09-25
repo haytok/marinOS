@@ -4,6 +4,7 @@
 #include "lib.h"
 #include "xmodem.h"
 #include "elf.h"
+#include "interrupt.h"
 
 volatile int value_1;
 volatile int value = 10;
@@ -18,6 +19,9 @@ static int init(void)
 	memcpy(&data_start, &erodata, (long)&edata - (long)&data_start);
 	// .bss の領域は 0 で初期化を実施する。(シンボル名のアドレスを & 演算子で取得する。)
 	memset(&bss_start, 0, (long)&ebss - (long)&bss_start);
+
+	// 割り込みハンドラに関する初期化
+	softvec_init();
 
 	// シリアルデバイスの初期化
 	serial_init(SERIAL_DEFAULT_DEVICE);
@@ -71,6 +75,9 @@ int main(void)
 	// extern int data_start;
 	// int *p;
 	// p = &data_start;
+
+	// 割り込みが入らないようにする。
+	INTR_DISABLE;
 
 	init();
 

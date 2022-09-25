@@ -12,6 +12,7 @@ MEMORY
     rom(rx)    : o = 0x000100, l = 0x07ff00
 
     ramall(rwx) : o = 0xffbf20, l = 0x004000 /* 16KB */
+    softvec(rw) : o = 0xffbf20, l = 0x000040 /* 64 Bytes */
     buffer(rwx) : o = 0xffdf20, l = 0x001d00 /* 8KB */
     data(rwx)   : o = 0xfffc20, l = 0x000300
     stack(rwx)  : o = 0xffff00, l = 0x000000 /* RAM の末尾 */
@@ -36,6 +37,10 @@ SECTIONS
         *(.rodata.*)
         _erodata = . ;
     } > rom
+
+    .softvec : {
+        _softvec = . ;
+    } > softvec
 
     /* buffer セクションは MEMORY コマンドで定義された領域に配置される。 */
     /* この領域に VAIO 側から転送されたファイルの内容を配置する。 */
