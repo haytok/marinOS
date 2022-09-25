@@ -192,3 +192,17 @@ system error!
 ```
 
 - -> 各スレッドが exit して kz_run の処理を抜けてから、kz_run の処理が再開しているのが確認できた。
+
+### スタックに使用方法に関して
+
+```bash
+boot loader> run
+starting from entry point:
+ffc020
+Boot Succeeded.
+Started marinOS ...
+Hello World :)
+marinos> �marinos boot loader started ... :)
+boot loader> cho 
+unknown.
+```
