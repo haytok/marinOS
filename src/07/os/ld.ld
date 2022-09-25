@@ -6,6 +6,8 @@ ENTRY("_start")
 MEMORY
 {
     ramall(rwx) : o = 0xffbf20, l = 0x004000 /* 16KB */
+    /* RAM の先頭領域には bootloader 側から参照される割り込みハンドラが定義されている。 */
+    softvec(rw) : o = 0xffbf20, l = 0x000040 /* 64 Bytes */
     /* readelf marinos から確認できるエントリーポイントアドレスとなる。 */
     ram(rwx)    : o = 0xffc020, l = 0x003f00
     stack(rw)  : o = 0xffff00, l = 0x000000 /* RAM の末尾 */
@@ -13,6 +15,11 @@ MEMORY
 
 SECTIONS
 {
+
+    .softvec : {
+        _softvec = . ;
+    } > softvec
+
     .text : {
         _text_start = . ;
         *(.text)

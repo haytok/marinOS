@@ -15,7 +15,7 @@ OBJDUMP = $(BINDIR)/$(ADDNAME)objdump
 RANLIB = $(BINDIR)/$(ADDNAME)ranlib
 STRIP = $(BINDIR)/$(ADDNAME)strip
 
-OBJS = startup.o main.o
+OBJS = startup.o main.o interrupt.o
 OBJS += lib.o serial.o
 
 TARGET = marinos
@@ -43,6 +43,8 @@ LFLAGS = -static -T ld.ld -L.
 # なんのオプションか全くわからん。
 .SUFFIXES: .c .o
 .SUFFIXES: .s .o
+# いらん気がするねんけど、いるんかな ...
+.SUFFIXES: .S .o
 
 all :		$(TARGET)
 
@@ -58,6 +60,11 @@ $(TARGET): $(OBJS)
 
 .s.o : $<
 		@echo "In .s.o, $< is " $<
+		$(CC) -c $(CFLAGS) $<
+
+# いらん気がするねんけど、いるんかな ...
+.S.o : $<
+		@echo "In .S.o, $< is " $<
 		$(CC) -c $(CFLAGS) $<
 
 clean:
