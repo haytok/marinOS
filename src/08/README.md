@@ -4,15 +4,80 @@
 
 ## 本章で実装すること
 
-- ...
+- スレッドを作成する。
 
 ## 実装した結果
 
-- ...
+```bash
+(~/workspace/marinOS/src/08/os/) C-Kermit>c
+Connecting to /dev/ttyUSB0, speed 9600
+ Escape character: Ctrl-\ (ASCII 28, FS): enabled
+Type the escape character followed by C to get back,
+or followed by ? to see other options.
+----------------------------------------------------
+
+XMODEM receive succeeded :)
+boot loader> run
+starting from entry point:
+ffc020
+Boot Succeeded.
+Started marinOS ...
+Hello World :)
+[ma_start] &current->context : ffccd8
+[start_threads]
+[thread_intr] [0] sp : fff4a4start
+[thread_intr] [1] sp : fff4a4
+[start_threads] END
+[thread_intr] [0] sp : fff4c0start
+start[thread_exit] EXIT.
+[thread_intr] [1] sp : fff4c0
+[test08_1_main] Started.
+>echo hello
+ hello
+>e
+unknown.
+>echo haytok
+ haytok
+>exit
+[test08_1_main] Exit.
+[thread_intr] [0] sp : fff5c0command
+command[thread_exit] EXIT.
+[ma_sysdown] System Error.
+```
 
 ## 今後の課題
 
-- [ ] ...
+- [ ] バックスペースを実装したい。
+- [ ] printf もどきの関数を実装したい。
+  - いちいち puts 関数で頑張るのがめんどくさいので ...
+- [ ] エラーハンドリングを十分に実装する。
+  - 例えば ma_syscall 関数のエラーハンドリング (-1 が返ってきた時など) が不足している。
+- [ ] 確認できる範囲でのスタックポインタを追ってみる。
+- [ ] 処理のフローをシーケンス図にまとめたい。
+- [ ] 確認したスタックポインタを元に攻撃 or スタックの破壊ができないかを検証してみる。
+  - 破壊するためのプログラムの実装のイメージを以下に示す。以下のプログラムを RAM に書き込み、exit をしまくるとスタックが破壊されて、bootloader に処理が戻る。原因はわからんかった ... :(
+
+```c
+static int start_threads(int argc, char *argv[])
+{
+	puts("[start_threads]\n");
+
+	ma_run(test08_1_main, "command", 0x100, 0, NULL);
+	ma_run(test08_1_main, "test_2", 0x100, 0, NULL);
+	ma_run(test08_1_main, "test_3", 0x100, 0, NULL);
+	ma_run(test08_1_main, "test_4", 0x100, 0, NULL);
+	ma_run(test08_1_main, "test_5", 0x100, 0, NULL);
+	ma_run(test08_1_main, "test_6", 0x100, 0, NULL);
+	ma_run(test08_1_main, "test_7", 0x100, 0, NULL);
+	ma_run(test08_1_main, "test_8", 0x100, 0, NULL);
+	ma_run(test08_1_main, "test_9", 0x100, 0, NULL);
+	ma_run(test08_1_main, "test_10", 0x100, 0, NULL);
+
+	puts("[start_threads] END\n");
+
+	return 0;
+}
+```
 
 ## メモ
 
@@ -205,4 +270,13 @@ Hello World :)
 marinos> �marinos boot loader started ... :)
 boot loader> cho 
 unknown.
+```
+
+### メモ
+
+- 2022/09/26 はこの章のデバッグ (OS が起動しない) 原因の調査から開始する。
+  - -> defines.h の uint_32 の定義を間違えて int にしていのが悪かった ... print デバッグで dispatch 移行の処理がおかしいことに気づけたのはエラい〜〜〜 (dispatch の直前までは処理が走っていたのは確認できていた。)
+
+```c
+typedef unsigned long uint_32;
 ```
