@@ -6,6 +6,10 @@
 
 typedef unsigned char uint_8;
 typedef unsigned short uint_16;
-typedef unsigned int uint_32;
+typedef unsigned long uint_32;
+
+typedef uint_32 ma_thread_id_t;
+typedef int (*ma_func_t)(int argc, char *argv[]);
+typedef void (*ma_handler_t)(void);
 
 #endif

@@ -5,12 +5,14 @@ ENTRY("_start")
 
 MEMORY
 {
-    ramall(rwx) : o = 0xffbf20, l = 0x004000 /* 16KB */
+    ramall(rwx)   : o = 0xffbf20, l = 0x004000 /* 16KB */
     /* RAM の先頭領域には bootloader 側から参照される割り込みハンドラが定義されている。 */
-    softvec(rw) : o = 0xffbf20, l = 0x000040 /* 64 Bytes */
+    softvec(rw)   : o = 0xffbf20, l = 0x000040 /* 64 Bytes */
     /* readelf marinos から確認できるエントリーポイントアドレスとなる。 */
-    ram(rwx)    : o = 0xffc020, l = 0x003f00
-    stack(rw)  : o = 0xffff00, l = 0x000000 /* RAM の末尾 */
+    ram(rwx)      : o = 0xffc020, l = 0x003f00
+    userstack(rw) : o = 0xfff400, l = 0x000000
+    bootstack(rw) : o = 0xffff00, l = 0x000000
+    intrstack(rw) : o = 0xffff00, l = 0x000000 /* RAM の末尾 */
 }
 
 SECTIONS
@@ -51,7 +53,15 @@ SECTIONS
     . = ALIGN(4);
     _end = . ;
 
-    .stack : {
-        _stack = . ;
-    } > stack
+    .userstack : {
+        _userstack = . ;
+    } > userstack
+
+    .bootstack : {
+        _bootstack = . ;
+    } > bootstack
+
+    .intrstack : {
+        _intrstack = . ;
+    } > intrstack
 }
