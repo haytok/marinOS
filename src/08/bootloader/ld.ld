@@ -7,15 +7,16 @@ MEMORY
 {
     /* ROM に配置するものと RAM に配置するものを区別して分ける。 */
     /* ROM に配置するのは、vectors と text である。 */
-    romall(rx) : o = 0x000000, l = 0x080000
-    vectors(r) : o = 0x000000, l = 0x000100
-    rom(rx)    : o = 0x000100, l = 0x07ff00
+    romall(rx)    : o = 0x000000, l = 0x080000
+    vectors(r)    : o = 0x000000, l = 0x000100
+    rom(rx)       : o = 0x000100, l = 0x07ff00
 
-    ramall(rwx) : o = 0xffbf20, l = 0x004000 /* 16KB */
-    softvec(rw) : o = 0xffbf20, l = 0x000040 /* 64 Bytes */
-    buffer(rwx) : o = 0xffdf20, l = 0x001d00 /* 8KB */
-    data(rwx)   : o = 0xfffc20, l = 0x000300
-    stack(rwx)  : o = 0xffff00, l = 0x000000 /* RAM の末尾 */
+    ramall(rwx)   : o = 0xffbf20, l = 0x004000 /* 16KB */
+    softvec(rw)   : o = 0xffbf20, l = 0x000040 /* 64 Bytes */
+    buffer(rwx)   : o = 0xffdf20, l = 0x001d00 /* 8KB */
+    data(rwx)     : o = 0xfffc20, l = 0x000300
+    bootstack(rw) : o = 0xffff00, l = 0x000000
+    intrstack(rw) : o = 0xffff00, l = 0x000000 /* RAM の末尾 */
 }
 
 SECTIONS
@@ -64,7 +65,11 @@ SECTIONS
     . = ALIGN(4);
     _end = . ;
 
-    .stack : {
-        _stack = . ;
-    } > stack
+    .bootstack : {
+        _bootstack = . ;
+    } > bootstack
+
+    .intrstack : {
+        _intrstack = . ;
+    } > intrstack
 }

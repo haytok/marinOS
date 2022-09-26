@@ -12,11 +12,17 @@ _intr_softerr:
         mov.l er3,@-er7
         mov.l er2,@-er7
         mov.l er1,@-er7
-        mov.l er0,@-er7
+        mov.l er0,@-er7 # この時点でレジスタの値をスタックに保存する処理が完了
+        # 割り込みのために確保したスタックの領域を使用するように sp を変更する。
+        # 旧 sp は割り込みのためのスタック領域の一番 top に保存する必要がある。
         # 割り込み処理
-        mov.l er7,er1
+        mov.l er7,er1 # 旧 sp を er1 レジスタに保存
+        mov.l #_intrstack,sp
+        mov.l er1,@-er7 # 割り込み用のスタックの top に旧 sp を保存し、jsr の処理が完了したときに元の領域に戻れるようにする。
         mov.w #SOFTVEC_TYPE_SOFTERR,r0
         jsr   @_interrupt
+        mov.l @er7+,er1
+        mov.l er1,er7 # 旧 sp へ sp を移す。
         # 復帰処理
         # アドレスが大きい方に SP が進んでいく。
         # interrupt の処理が完了した時は er7 に元の SP の値に戻っているはずやけど、どこで戻るんやろか ...
@@ -42,8 +48,13 @@ _intr_syscall:
         mov.l er1,@-er7
         mov.l er0,@-er7
         mov.l er7,er1
+        mov.l #_intrstack,sp
+        mov.l er1,@-er7
         mov.w #SOFTVEC_TYPE_SYSCALL,r0
         jsr @_interrupt
+        mov.l @er7+,er1
+        mov.l er1,er7
+        # 復帰処理
         mov.l @er7+,er0
         mov.l @er7+,er1
         mov.l @er7+,er2
@@ -64,8 +75,12 @@ _intr_serintr:
         mov.l er1,@-er7
         mov.l er0,@-er7
         mov.l er7,er1
+        mov.l #_intrstack,sp
+        mov.l er1,@-er7
         mov.w #SOFTVEC_TYPE_SERINTR,r0
         jsr @_interrupt
+        mov.l @er7+,er1
+        mov.l er1,er7
         mov.l @er7+,er0
         mov.l @er7+,er1
         mov.l @er7+,er2
