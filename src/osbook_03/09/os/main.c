@@ -11,8 +11,22 @@ kz_thread_id_t test09_3_id;
 static int start_threads(int argc, char *argv[])
 {
 	test09_1_id = kz_run(test09_1_main, "test09_1", 1, 0x100, 0, NULL);
+
+	puts("test09_1_id : ");
+	putxval(test09_1_id, 0);
+	puts("\n");
+
 	test09_2_id = kz_run(test09_2_main, "test09_2", 2, 0x100, 0, NULL);
+
+	puts("test09_2_id : ");
+	putxval(test09_2_id, 0);
+	puts("\n");
+
 	test09_3_id = kz_run(test09_3_main, "test09_3", 3, 0x100, 0, NULL);
+
+	puts("test09_3_id : ");
+	putxval(test09_3_id, 0);
+	puts("\n");
 
 	kz_chpri(15);
 	INTR_ENABLE; /* �����ͭ���ˤ��� */

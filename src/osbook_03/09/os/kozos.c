@@ -78,10 +78,10 @@ static int putcurrent(void)
 	if (current == NULL) {
 		return -1;
 	}
-	if (current->flags & KZ_THREAD_FLAG_READY) {
-		/* ���Ǥ�ͭ�����̵�� */
-		return 1;
-	}
+	// if (current->flags & KZ_THREAD_FLAG_READY) {
+	// 	/* ���Ǥ�ͭ�����̵�� */
+	// 	return 1;
+	// }
 
 	/* ��ǥ��������塼����������³���� */
 	if (readyque[current->priority].tail) {
@@ -119,9 +119,9 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name, int priority,
 		userstack; /* ��󥫡�������ץȤ��������륹���å��ΰ� */
 	static char *thread_stack = &userstack;
 
-	puts("hoge\n");
-	putxval(thread_stack, 0);
-	puts("hoge\n");
+	// puts("hoge\n");
+	// putxval(thread_stack, 0);
+	// puts("hoge\n");
 
 	/* �����Ƥ��륿����������ȥ����롦�֥��å��򸡺� */
 	for (i = 0; i < THREAD_NUM; i++) {
@@ -232,6 +232,10 @@ static kz_thread_id_t thread_getid(void)
 /* �����ƥࡦ������ν���(kz_chpri():����åɤ�ͥ�����ѹ�) */
 static int thread_chpri(int priority)
 {
+	puts("[thread_chpri] ");
+	puts(current->name);
+	puts("\n");
+
 	int old = current->priority;
 	if (priority >= 0)
 		current->priority = priority; /* ͥ�����ѹ� */
@@ -338,16 +342,23 @@ static void softerr_intr(void)
 // この引数の type は bootloader の inerrupt 内の handler から呼び出される。
 static void thread_intr(softvec_type_t type, unsigned long sp)
 {
-	if (type == SOFTVEC_TYPE_SYSCALL) {
-		puts("in thread_intr from os\n");
-		putxval(KZ_SYSCALL_TYPE_CHPRI, 0);
-		puts("\n");
-		putxval(type, 0);
-		puts("\n");
-		puts("in thread_intr from os\n");
-	}
+	// if (type == SOFTVEC_TYPE_SYSCALL) {
+	// 	puts("in thread_intr from os\n");
+	// 	putxval(KZ_SYSCALL_TYPE_CHPRI, 0);
+	// 	puts("\n");
+	// 	putxval(type, 0);
+	// 	puts("\n");
+	// 	puts("in thread_intr from os\n");
+	// }
 	/* �����ȡ�����åɤΥ���ƥ����Ȥ���¸���� */
 	current->context.sp = sp;
+
+	puts("[0] [thread_intr] ");
+	puts(current->name);
+	puts("\n");
+	puts("[0] [thread_intr] current->flags ");
+	putxval(current->flags, 0);
+	puts("\n");
 
 	/*
    * ����ߤ��Ȥν�����¹Ԥ��롥
@@ -358,7 +369,18 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
 	if (handlers[type])
 		handlers[type]();
 
+	puts("[1] [thread_intr] ");
+	puts(current->name);
+	puts("\n");
+	puts("[1] [thread_intr] current->flags ");
+	putxval(current->flags, 0);
+	puts("\n");
+
 	schedule(); /* ����åɤΥ������塼��� */
+
+	puts("[2] [thread_intr] ");
+	puts(current->name);
+	puts("\n");
 
 	/*
    * ����åɤΥǥ����ѥå�
@@ -409,8 +431,8 @@ void kz_syscall(kz_syscall_type_t type, kz_syscall_param_t *param)
 {
 	current->syscall.type = type;
 	current->syscall.param = param;
-	if (type == KZ_SYSCALL_TYPE_CHPRI) {
-		puts("in kz_syscall\n");
-	}
+	// if (type == KZ_SYSCALL_TYPE_CHPRI) {
+	// 	puts("in kz_syscall\n");
+	// }
 	asm volatile("trapa #0"); /* �ȥ�å׳����ȯ�� */
 }
