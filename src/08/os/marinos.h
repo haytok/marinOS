@@ -19,5 +19,6 @@ void ma_sysdown(void);
 void ma_syscall(ma_syscall_type_t type, ma_syscall_param_t *param);
 
 int test08_1_main(int argc, char *argv[]);
+int test08_2_main(int argc, char *argv[]);
 
 #endif

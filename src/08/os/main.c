@@ -10,7 +10,8 @@ static int start_threads(int argc, char *argv[])
 {
 	puts("[start_threads] START\n");
 
-	ma_run(test08_1_main, "command", 0x100, 0, NULL);
+	ma_run(test08_1_main, "command1", 0x100, 0, NULL);
+	ma_run(test08_2_main, "command2", 0x100, 0, NULL);
 
 	puts("[start_threads] END\n");
 
