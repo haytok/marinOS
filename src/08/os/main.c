@@ -8,7 +8,7 @@
 
 static int start_threads(int argc, char *argv[])
 {
-	puts("[start_threads]\n");
+	puts("[start_threads] START\n");
 
 	ma_run(test08_1_main, "command", 0x100, 0, NULL);
 
@@ -27,6 +27,9 @@ int main(void)
 
 	// marinos.c で定義されている marinos.c
 	ma_start(start_threads, "start", 0x100, 0, NULL);
+
+	puts("[main] END");
+	puts("\n");
 
 	return 0;
 }
