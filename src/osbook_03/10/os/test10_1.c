@@ -4,33 +4,38 @@
 
 int test10_1_main(int argc, char *argv[])
 {
-  char *p1, *p2;
-  int i, j;
+	char *p1, *p2;
+	int i, j;
 
-  puts("test10_1 started.\n");
+	puts("test10_1 started.\n");
 
-  for (i = 4; i <= 56; i += 4) {
+	for (i = 4; i <= 56; i += 4) {
+		/* ï¿½ï¿½ï¿½ï¿½ï¿½Æ°Åªï¿½Ë³ï¿½ï¿½ï¿½ */
+		p1 = kz_kmalloc(i);
+		p2 = kz_kmalloc(i);
 
-    /* ¥á¥â¥ê¤òÆ°Åª¤Ë³ÍÆÀ */
-    p1 = kz_kmalloc(i);
-    p2 = kz_kmalloc(i);
+		for (j = 0; j < i - 1; j++) {
+			p1[j] = 'a';
+			p2[j] = 'b';
+		}
+		p1[j] = '\0';
+		p2[j] = '\0';
 
-    for (j = 0; j < i - 1; j++) {
-      p1[j] = 'a';
-      p2[j] = 'b';
-    }
-    p1[j] = '\0';
-    p2[j] = '\0';
+		putxval((unsigned long)p1, 8);
+		puts(" ");
+		puts(p1);
+		puts("\n");
+		putxval((unsigned long)p2, 8);
+		puts(" ");
+		puts(p2);
+		puts("\n");
 
-    putxval((unsigned long)p1, 8); puts(" "); puts(p1); puts("\n");
-    putxval((unsigned long)p2, 8); puts(" "); puts(p2); puts("\n");
+		/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+		kz_kmfree(p1);
+		kz_kmfree(p2);
+	}
 
-    /* ¥á¥â¥ê²òÊü */
-    kz_kmfree(p1);
-    kz_kmfree(p2);
-  }
+	puts("test10_1 exit.\n");
 
-  puts("test10_1 exit.\n");
-
-  return 0;
+	return 0;
 }

@@ -4,114 +4,189 @@
 #include "memory.h"
 
 /*
- * ¥á¥â¥ê¡¦¥Ö¥í¥Ã¥¯¹½Â¤ÂÎ
- * (³ÍÆÀ¤µ¤ì¤¿³ÆÎÎ°è¤Ï¡¤ÀèÆ¬¤Ë°Ê²¼¤Î¹½Â¤ÂÎ¤ò»ý¤Ã¤Æ¤¤¤ë)
+ * ï¿½ï¿½ï¿½ê¡¦ï¿½Ö¥ï¿½ï¿½Ã¥ï¿½ï¿½ï¿½Â¤ï¿½ï¿½
+ * (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ì¤¿ï¿½ï¿½ï¿½Î°ï¿½Ï¡ï¿½ï¿½ï¿½Æ¬ï¿½Ë°Ê²ï¿½ï¿½Î¹ï¿½Â¤ï¿½Î¤ï¿½ï¿½ï¿½Ã¤Æ¤ï¿½ï¿½ï¿½)
  */
 typedef struct _kzmem_block {
-  struct _kzmem_block *next;
-  int size;
+	struct _kzmem_block *next;
+	int size;
 } kzmem_block;
 
-/* ¥á¥â¥ê¡¦¥×¡¼¥ë */
+/* ï¿½ï¿½ï¿½ê¡¦ï¿½×¡ï¿½ï¿½ï¿½ */
 typedef struct _kzmem_pool {
-  int size;
-  int num;
-  kzmem_block *free;
+	int size;
+	int num;
+	kzmem_block *free;
 } kzmem_pool;
 
-/* ¥á¥â¥ê¡¦¥×¡¼¥ë¤ÎÄêµÁ(¸Ä¡¹¤Î¥µ¥¤¥º¤È¸Ä¿ô) */
+/* ï¿½ï¿½ï¿½ê¡¦ï¿½×¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½Ä¡ï¿½ï¿½Î¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¸Ä¿ï¿½) */
 static kzmem_pool pool[] = {
-  { 16, 8, NULL }, { 32, 8, NULL }, { 64, 4, NULL },
+	{ 16, 8, NULL },
+	{ 32, 8, NULL },
+	{ 64, 4, NULL },
 };
 
 #define MEMORY_AREA_NUM (sizeof(pool) / sizeof(*pool))
 
-/* ¥á¥â¥ê¡¦¥×¡¼¥ë¤Î½é´ü²½ */
+/* ï¿½ï¿½ï¿½ê¡¦ï¿½×¡ï¿½ï¿½ï¿½Î½ï¿½ï¿½ï¿½ï¿½ */
 static int kzmem_init_pool(kzmem_pool *p)
 {
-  int i;
-  kzmem_block *mp;
-  kzmem_block **mpp;
-  extern char freearea; /* ¥ê¥ó¥«¡¦¥¹¥¯¥ê¥×¥È¤ÇÄêµÁ¤µ¤ì¤ë¶õ¤­ÎÎ°è */
-  static char *area = &freearea;
+	int i;
+	kzmem_block *mp;
+	kzmem_block **mpp;
+	extern char freearea;
+	static char *area = &freearea;
 
-  mp = (kzmem_block *)area;
+	mp = (kzmem_block *)area;
 
-  /* ¸Ä¡¹¤ÎÎÎ°è¤ò¤¹¤Ù¤Æ²òÊüºÑ¤ß¥ê¥ó¥¯¥ê¥¹¥È¤Ë·Ò¤° */
-  mpp = &p->free;
-  for (i = 0; i < p->num; i++) {
-    *mpp = mp;
-    memset(mp, 0, sizeof(*mp));
-    mp->size = p->size;
-    mpp = &(mp->next);
-    mp = (kzmem_block *)((char *)mp + p->size);
-    area += p->size;
-  }
+	puts("mp ");
+	putxval(mp, 0);
+	puts("\n");
 
-  return 0;
+	puts("&p->free->next ");
+	putxval(&p->free->next, 0);
+	puts("\n");
+
+	mpp = &p->free;
+
+	puts("mpp ");
+	putxval(mpp, 0);
+	puts("\n");
+
+	puts("[-1] &p->free->next ");
+	putxval(&p->free->next, 0);
+	puts(", mp ");
+	putxval(mp, 0);
+	puts(", mp->next ");
+	putxval(mp->next, 0);
+	puts("\n");
+
+	puts("~~~~~~~~~");
+	puts("\n");
+
+	for (i = 0; i < p->num; i++) {
+		*mpp = mp;
+
+		puts("[0] &p->free->next ");
+		putxval(&p->free->next, 0);
+		puts(", mp ");
+		putxval(mp, 0);
+		puts(", mp->next ");
+		putxval(mp->next, 0);
+		puts("\n");
+
+		memset(mp, 0, sizeof(*mp));
+		mp->size = p->size;
+
+		// puts("mp->next ");
+		// putxval(mp->next, 0); // 0
+		// puts("\n");
+		// puts("&mp->next ");
+		// putxval(&(mp->next), 0); // ffd2a8
+		// puts("\n");
+		// puts("-----\n");
+
+		mpp = &(mp->next);
+
+		puts("[1] &p->free->next ");
+		putxval(&p->free->next, 0);
+		puts(", mp ");
+		putxval(mp, 0);
+		puts(", mp->next ");
+		putxval(mp->next, 0);
+		puts("\n");
+
+		// puts("mpp ");
+		// putxval(mpp, 0); // ffd2a8
+		// puts("-----\n");
+		// puts("*mpp ");
+		// putxval(*mpp, 0); // 0
+		// puts("-+-+-+-+-\n");
+
+		mp = (kzmem_block *)((char *)mp + p->size);
+		area += p->size;
+
+		puts("[2] &p->free->next ");
+		putxval(&p->free->next, 0);
+		puts(", mp ");
+		putxval(mp, 0);
+		puts(", mp->next ");
+		putxval(mp->next, 0);
+		puts("\n");
+	}
+
+	puts("&p->free->next ");
+	putxval(&p->free->next, 0);
+	puts(", mp ");
+	putxval(mp, 0);
+	puts(", mp->next ");
+	putxval(mp->next, 0);
+	puts("\n");
+
+	return 0;
 }
 
-/* Æ°Åª¥á¥â¥ê¤Î½é´ü²½ */
+/* Æ°Åªï¿½ï¿½ï¿½ï¿½Î½ï¿½ï¿½ï¿½ï¿½ */
 int kzmem_init(void)
 {
-  int i;
-  for (i = 0; i < MEMORY_AREA_NUM; i++) {
-    kzmem_init_pool(&pool[i]); /* ³Æ¥á¥â¥ê¡¦¥×¡¼¥ë¤ò½é´ü²½¤¹¤ë */
-  }
-  return 0;
+	int i;
+	for (i = 0; i < MEMORY_AREA_NUM; i++) {
+		kzmem_init_pool(&pool[i]); /* ï¿½Æ¥ï¿½ï¿½ê¡¦ï¿½×¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+	}
+	return 0;
 }
 
-/* Æ°Åª¥á¥â¥ê¤Î³ÍÆÀ */
+/* Æ°Åªï¿½ï¿½ï¿½ï¿½Î³ï¿½ï¿½ï¿½ */
 void *kzmem_alloc(int size)
 {
-  int i;
-  kzmem_block *mp;
-  kzmem_pool *p;
+	int i;
+	kzmem_block *mp;
+	kzmem_pool *p;
 
-  for (i = 0; i < MEMORY_AREA_NUM; i++) {
-    p = &pool[i];
-    if (size <= p->size - sizeof(kzmem_block)) {
-      if (p->free == NULL) { /* ²òÊüºÑ¤ßÎÎ°è¤¬Ìµ¤¤(¥á¥â¥ê¡¦¥Ö¥í¥Ã¥¯ÉÔÂ­) */
+	for (i = 0; i < MEMORY_AREA_NUM; i++) {
+		p = &pool[i];
+		if (size <= p->size - sizeof(kzmem_block)) {
+			if (p->free == NULL) { /* ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¤ï¿½ï¿½Î°è¤¬Ìµï¿½ï¿½(ï¿½ï¿½ï¿½ê¡¦ï¿½Ö¥ï¿½ï¿½Ã¥ï¿½ï¿½ï¿½Â­) */
+				kz_sysdown();
+				return NULL;
+			}
+			/* ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¤ß¥ï¿½ó¥¯¥ê¥¹ï¿½È¤ï¿½ï¿½ï¿½ï¿½Î°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+			mp = p->free;
+			p->free = p->free->next;
+			mp->next = NULL;
+
+			/*
+       * ï¿½ÂºÝ¤ï¿½ï¿½ï¿½ï¿½Ñ²ï¿½Ç½ï¿½ï¿½ï¿½Î°ï¿½Ï¡ï¿½ï¿½ï¿½ï¿½ê¡¦ï¿½Ö¥ï¿½ï¿½Ã¥ï¿½ï¿½ï¿½Â¤ï¿½Î¤ï¿½Ä¾ï¿½ï¿½ï¿½ï¿½Î°ï¿½ï¿½
+       * ï¿½Ê¤ï¿½Î¤Ç¡ï¿½Ä¾ï¿½ï¿½Î¥ï¿½ï¿½É¥ì¥¹ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½
+       */
+			return mp + 1;
+		}
+	}
+
+	/* ï¿½ï¿½ï¿½ê¤µï¿½ì¤¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î°ï¿½ï¿½ï¿½Ç¼ï¿½Ç¤ï¿½ï¿½ï¿½ï¿½ï¿½ê¡¦ï¿½×¡ï¿½ï¿½ë¤¬Ìµï¿½ï¿½ */
 	kz_sysdown();
 	return NULL;
-      }
-      /* ²òÊüºÑ¤ß¥ê¥ó¥¯¥ê¥¹¥È¤«¤éÎÎ°è¤ò¼èÆÀ¤¹¤ë */
-      mp = p->free;
-      p->free = p->free->next;
-      mp->next = NULL;
-
-      /*
-       * ¼ÂºÝ¤ËÍøÍÑ²ÄÇ½¤ÊÎÎ°è¤Ï¡¤¥á¥â¥ê¡¦¥Ö¥í¥Ã¥¯¹½Â¤ÂÎ¤ÎÄ¾¸å¤ÎÎÎ°è¤Ë
-       * ¤Ê¤ë¤Î¤Ç¡¤Ä¾¸å¤Î¥¢¥É¥ì¥¹¤òÊÖ¤¹¡¥
-       */
-      return mp + 1;
-    }
-  }
-
-  /* »ØÄê¤µ¤ì¤¿¥µ¥¤¥º¤ÎÎÎ°è¤ò³ÊÇ¼¤Ç¤­¤ë¥á¥â¥ê¡¦¥×¡¼¥ë¤¬Ìµ¤¤ */
-  kz_sysdown();
-  return NULL;
 }
 
-/* ¥á¥â¥ê¤Î²òÊü */
+/* ï¿½ï¿½ï¿½ï¿½Î²ï¿½ï¿½ï¿½ */
 void kzmem_free(void *mem)
 {
-  int i;
-  kzmem_block *mp;
-  kzmem_pool *p;
+	int i;
+	kzmem_block *mp;
+	kzmem_pool *p;
 
-  /* ÎÎ°è¤ÎÄ¾Á°¤Ë¤¢¤ë(¤Ï¤º¤Î)¥á¥â¥ê¡¦¥Ö¥í¥Ã¥¯¹½Â¤ÂÎ¤ò¼èÆÀ */
-  mp = ((kzmem_block *)mem - 1);
+	/* ï¿½Î°ï¿½ï¿½Ä¾ï¿½ï¿½ï¿½Ë¤ï¿½ï¿½ï¿½(ï¿½Ï¤ï¿½ï¿½ï¿½)ï¿½ï¿½ï¿½ê¡¦ï¿½Ö¥ï¿½ï¿½Ã¥ï¿½ï¿½ï¿½Â¤ï¿½Î¤ï¿½ï¿½ï¿½ï¿½ */
+	mp = ((kzmem_block *)mem - 1);
 
-  for (i = 0; i < MEMORY_AREA_NUM; i++) {
-    p = &pool[i];
-    if (mp->size == p->size) {
-      /* ÎÎ°è¤ò²òÊüºÑ¤ß¥ê¥ó¥¯¥ê¥¹¥È¤ËÌá¤¹ */
-      mp->next = p->free;
-      p->free = mp;
-      return;
-    }
-  }
+	for (i = 0; i < MEMORY_AREA_NUM; i++) {
+		p = &pool[i];
+		if (mp->size == p->size) {
+			/* ï¿½Î°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¤ß¥ï¿½ó¥¯¥ê¥¹ï¿½È¤ï¿½ï¿½á¤¹ */
+			mp->next = p->free;
+			p->free = mp;
+			return;
+		}
+	}
 
-  kz_sysdown();
+	kz_sysdown();
 }
