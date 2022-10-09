@@ -82,12 +82,18 @@ static int putcurrent(void)
 static void thread_end(void)
 {
 	// システムコールの呼び出し
+	puts("[thread_end]\n");
 	ma_exit();
 }
 
 static void thread_init(ma_thread *thp)
 {
+	puts("[thread_init] [0]");
+	puts("\n");
 	thp->init.func(thp->init.argc, thp->init.argv);
+	// start_threads が return すると返ってくる。
+	puts("[thread_init] [1]");
+	puts("\n");
 	thread_end();
 }
 
@@ -104,6 +110,11 @@ static ma_thread_id_t thread_run(ma_func_t func, char *name, int stacksize,
 	// 空いている threads を見つける。
 	for (i = 0; i < THREAD_NUM; i++) {
 		thp = &threads[i];
+
+		puts("[thread_run] tnp: ");
+		putxval(thp, 0);
+		puts("\n");
+
 		// init があるかどうかで判定する。
 		if (!thp->init.func) {
 			break;
@@ -132,6 +143,7 @@ static ma_thread_id_t thread_run(ma_func_t func, char *name, int stacksize,
 	sp = (uint_32 *)thp->stack;
 
 	*(--sp) = (uint_32)thread_end;
+
 	// PC と CCR を設定する。
 	*(--sp) = (uint_32)thread_init;
 
@@ -151,12 +163,17 @@ static ma_thread_id_t thread_run(ma_func_t func, char *name, int stacksize,
 	current = thp;
 	putcurrent();
 
+	puts("[thread_run]");
+	putxval(sp, 0);
+	puts("\n");
+
 	return (ma_thread_id_t)current;
 }
 
 static int thread_exit(void)
 {
 	puts(current->name);
+	puts("\n");
 	puts(" [thread_exit] EXIT.\n");
 	memset(current, 0, sizeof(*current));
 	return 0;
@@ -228,13 +245,32 @@ static void softerr_intr(void)
 // 割り込みが発生したときに bootloader の interrupt 関数から呼び出されるハンドラ
 static void thread_intr(softvec_type_t type, unsigned long sp)
 {
-	puts("[thread_intr] [0] sp : ");
-	putxval(sp, 0);
+	puts("[thread_intr] [0] current->name : ");
 	puts(current->name);
+	puts("\n");
+
+	puts("[thread_intr] [00] sp : ");
+	putxval(sp, 0);
+	puts("\n");
+
+	puts("[thread_intr] [00] &current->context : ");
+	putxval(&current->context, 0);
 	puts("\n");
 
 	// 割り込みハンドラが実行される前の sp を context 変数に保持しておく。
 	current->context.sp = sp;
+
+	puts("[thread_intr] [000] &current->context : ");
+	putxval(&current->context, 0);
+	puts("\n");
+
+	puts("[thread_intr] [000] current->context.sp : ");
+	putxval(current->context.sp, 0);
+	puts("\n");
+
+	puts("[thread_intr] [000] &current->context.sp : ");
+	putxval(&current->context.sp, 0);
+	puts("\n");
 
 	// handlers に登録されている関数 (syscall_intr, softerr_intr) が実行される。
 	// この内部では最終的に thred_run が呼び出され、threads に作成されたスレッドが蓄積されていく。
@@ -242,14 +278,26 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
 		handlers[type]();
 	}
 
+	puts("[0000] [thread_intr] [after handlers[type]] &current->context : ");
+	putxval(&current->context, 0);
+	puts("\n");
+
+	puts("[00000] [thread_intr] [before schedule()] current->name : ");
+	puts(current->name);
+	puts("\n");
+
 	// なんでこれを実行するんかな ...
 	// softerr_intr が上の handler の処理で実行されたときに、current が NULL になった時を想定してる？？？
 	// それ以外の場合であれば current には何かしらの context は保持されていると思うけど ...
 	schedule();
 
 	// 2022/09/26 時点では fff4c0 が出力された
-	puts("[thread_intr] [1] sp : ");
-	putxval(sp, 0);
+	puts("[1] [thread_intr] [after schedule()] current->name : ");
+	puts(current->name);
+	puts("\n");
+
+	puts("[2] [thread_intr] [after schedule()] &current->context : ");
+	putxval(&current->context, 0);
 	puts("\n");
 
 	dispatch(&current->context);
@@ -270,11 +318,14 @@ void ma_start(ma_func_t func, char *name, int stacksize, int argc, char *argv[])
 
 	current = (ma_thread *)thread_run(func, name, stacksize, argc, argv);
 
-	puts("[ma_start] &current->context : ");
-	putxval(&current->context, 0);
+	puts("[ma_start] current->name : ");
+	puts(current->name);
 	puts("\n");
 
 	dispatch(&current->context);
+
+	puts("[ma_start] ...");
+	puts("\n");
 }
 
 // ライブラリ関数
