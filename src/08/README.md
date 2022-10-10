@@ -280,3 +280,102 @@ unknown.
 ```c
 typedef unsigned long uint_32;
 ```
+
+### デバッグの際に使用した Log
+
+```bash
+boot loader> run
+starting from entry point:
+ffc020
+Boot Succeeded.
+Started marinOS ...
+Hello World :)
+[thread_run] tnp: ffd198
+[thread_run]fff4dc
+[ma_start] current->name : start
+[thread_init] [0]
+[start_threads] START
+[thread_intr] [0] current->name : start
+[thread_intr] [00] sp : fff49c
+[thread_intr] [00] &current->context : ffd1c4
+[thread_intr] [000] &current->context : ffd1c4
+[thread_intr] [000] current->context.sp : fff49c
+[thread_intr] [000] &current->context.sp : ffd1c4
+[thread_run] tnp: ffd198
+[thread_run] tnp: ffd1c8
+[thread_run]fff5dc
+[0000] [thread_intr] [after handlers[type]] &current->context : ffd1f4
+[00000] [thread_intr] [before schedule()] current->name : command1
+[1] [thread_intr] [after schedule()] current->name : start
+[2] [thread_intr] [after schedule()] &current->context : ffd1c4
+=-=-=-=-=-=-=
+[thread_intr] [0] current->name : start
+[thread_intr] [00] sp : fff494
+[thread_intr] [00] &current->context : ffd1c4
+[thread_intr] [000] &current->context : ffd1c4
+[thread_intr] [000] current->context.sp : fff494
+[thread_intr] [000] &current->context.sp : ffd1c4
+[thread_run] tnp: ffd198
+[thread_run] tnp: ffd1c8
+[thread_run] tnp: ffd1f8
+[thread_run]fff6dc
+[0000] [thread_intr] [after handlers[type]] &current->context : ffd224
+[00000] [thread_intr] [before schedule()] current->name : command2
+[1] [thread_intr] [after schedule()] current->name : command1
+[2] [thread_intr] [after schedule()] &current->context : ffd1f4
+[thread_init] [0]
+[test08_1_main] Started.
+>exit
+[test08_1_main] Exit.
+[thread_init] [1]
+[thread_end]
+[thread_intr] [0] current->name : command1
+[thread_intr] [00] sp : fff5bc
+[thread_intr] [00] &current->context : ffd1f4
+[thread_intr] [000] &current->context : ffd1f4
+[thread_intr] [000] current->context.sp : fff5bc
+[thread_intr] [000] &current->context.sp : ffd1f4
+command1
+ [thread_exit] EXIT.
+[0000] [thread_intr] [after handlers[type]] &current->context : ffd1f4
+[00000] [thread_intr] [before schedule()] current->name :
+[1] [thread_intr] [after schedule()] current->name : start
+[2] [thread_intr] [after schedule()] &current->context : ffd1c4
+=-=-=-=-=-=-=
+[start_threads] END
+[thread_init] [1]
+[thread_end]
+[thread_intr] [0] current->name : start
+[thread_intr] [00] sp : fff4bc
+[thread_intr] [00] &current->context : ffd1c4
+[thread_intr] [000] &current->context : ffd1c4
+[thread_intr] [000] current->context.sp : fff4bc
+[thread_intr] [000] &current->context.sp : ffd1c4
+start
+ [thread_exit] EXIT.
+[0000] [thread_intr] [after handlers[type]] &current->context : ffd1c4
+[00000] [thread_intr] [before schedule()] current->name :
+[1] [thread_intr] [after schedule()] current->name : command2
+[2] [thread_intr] [after schedule()] &current->context : ffd224
+[thread_init] [0]
+[test08_2_main] Started.
+>echo hello
+ hello
+>dump
+unknown.
+>exit
+[test08_2_main] Exit.
+[thread_init] [1]
+[thread_end]
+[thread_intr] [0] current->name : command2
+[thread_intr] [00] sp : fff6bc
+[thread_intr] [00] &current->context : ffd224
+[thread_intr] [000] &current->context : ffd224
+[thread_intr] [000] current->context.sp : fff6bc
+[thread_intr] [000] &current->context.sp : ffd224
+command2
+ [thread_exit] EXIT.
+[0000] [thread_intr] [after handlers[type]] &current->context : ffd224
+[00000] [thread_intr] [before schedule()] current->name :
+[ma_sysdown] System Error.
+```
