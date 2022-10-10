@@ -173,12 +173,24 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name, int priority,
 	/* ����åɤΥ���ƥ����Ȥ����� */
 	thp->context.sp = (uint32)sp;
 
+	puts("[0] [thread_run] ");
+	puts(current->name);
+	puts("\n");
+
 	/* �����ƥࡦ�������ƤӽФ�������åɤ��ǥ��������塼���᤹ */
 	putcurrent();
+
+	puts("[1] [thread_run] ");
+	puts(current->name);
+	puts("\n");
 
 	/* ����������������åɤ򡤥�ǥ��������塼����³���� */
 	current = thp;
 	putcurrent();
+
+	puts("[2] [thread_run] ");
+	puts(current->name);
+	puts("\n");
 
 	return (kz_thread_id_t)current;
 }
