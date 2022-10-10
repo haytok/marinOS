@@ -247,12 +247,6 @@ static int thread_chpri(int priority)
 	DEBUG_XVAL(priority, 0);
 	DEBUG_NEWLINE();
 
-	// putcurrent();
-
-	DEBUG_CHAR("[3] [thread_chpri] current->name ");
-	DEBUG_CHAR(current->name);
-	DEBUG_NEWLINE();
-
 	// priority に変な値が入っていないかのチェックを行う。
 	// 書籍には入れていなかったが、上限のチェックも実装した。
 	if (priority >= 0) {
