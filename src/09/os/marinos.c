@@ -247,6 +247,7 @@ static int thread_chpri(int priority)
 	DEBUG_XVAL(priority, 0);
 	DEBUG_NEWLINE();
 
+
 	// priority に変な値が入っていないかのチェックを行う。
 	// 書籍には入れていなかったが、上限のチェックも実装した。
 	if (priority >= 0) {
