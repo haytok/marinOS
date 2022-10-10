@@ -5,14 +5,72 @@
 ## 本章で実装すること
 
 - 優先度付きスケジューリングを実装する。
+  - Priority 用の構造体のメンバを追加する。
+  - スレッドを格納するデータ構造を変更する。
+  - システムコールを追加実装する。
+	- スレッドを待たすシステムコール (`ma_wait()`)
+	- スレッドを寝かすシステムコール (`ma_sleep()`)
+    - スレッドを起こすシステムコール (`ma_wakeup()`)
+	- スレッド ID を取得するシステムコール (`ma_getid()`)
+	- スレッドの優先度を変更するシステムコール (`ma_chpri()`)
+  - `call_functions()` で呼び出される、システムコールに対応する `thread_***()` を実装する。
+  - システムコールに応じた返り値の構造体を変更する。
+  - schedule(), getcurrent(), putcurrent() を優先度に対応させる。
+
+- thread_chpri() の中で putcurrent() を間違って 2 回読んだいたせいでバグってしまい、半日ほど溶かした ... サポートエンジニア力を発揮してデバッグコードを仕込みまくって、トラシューが完了させることができた。
+  - putcurrent() によって priority が 0 の current が readyque に追加されたことで、処理がバグっていた ... :(
 
 ## 実装した結果
 
-- ...
+```bash
+boot loader> run
+starting from entry point:
+ffc020
+Boot Succeeded.
+Started marinOS ...
+Hello World :)
+=-=-=-=-=-=-=
+=-=-=-=-=-=-=
+=-=-=-=-=-=-=
+test09_1 started.
+test09_1 sleep in.
+test09_2 started.
+test09_2 sleep in.
+test09_3 started.
+test09_3 wakeup in (test09_1).
+test09_1 sleep out.
+test09_1 chpri in.
+test09_3 wakeup out.
+test09_3 wakeup in (test09_2).
+test09_2 sleep out.
+test09_2 chpri in.
+test09_1 chpri out.
+test09_1 wait in.
+test09_3 wakeup out.
+test09_3 wait in.
+test09_2 chpri out.
+test09_2 wait in.
+test09_1 wait out.
+test09_1 trap in.
+test09_1 [softerr_intr] DOWN
+test09_1
+ [thread_exit] EXIT.
+test09_3 wait out.
+test09_3 exit in.
+test09_3
+ [thread_exit] EXIT.
+test09_2 wait out.
+test09_2 exit.
+[thread_end]
+test09_2
+ [thread_exit] EXIT.
+Killed
+```
 
 ## 今後の課題
 
-- [ ] ...
+- [ ] reqdyque の探索を for loop ではなく bit 演算で高速にできるようにするべき
+  - ref. p.349
 
 ## メモ
 
