@@ -18,7 +18,7 @@ STRIP = $(BINDIR)/$(ADDNAME)strip
 OBJS = startup.o main.o interrupt.o
 OBJS += lib.o serial.o
 # Sources of marinOS
-OBJS += marinos.o syscall.o test09_1.o test09_2.o test09_3.o
+OBJS += marinos.o syscall.o memory.o test10_1.o
 
 TARGET = marinos
 

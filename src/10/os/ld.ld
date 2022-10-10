@@ -53,6 +53,10 @@ SECTIONS
     . = ALIGN(4);
     _end = . ;
 
+    .freearea : {
+        _freearea = . ;
+    } > ram
+
     .userstack : {
         _userstack = . ;
     } > userstack

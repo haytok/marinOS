@@ -11,6 +11,8 @@ typedef enum {
 	MA_SYSCALL_TYPE_WAKEUP,
 	MA_SYSCALL_TYPE_GETID,
 	MA_SYSCALL_TYPE_CHPRI,
+	MA_SYSCALL_TYPE_KMALLOC,
+	MA_SYSCALL_TYPE_KMFREE,
 } ma_syscall_type_t;
 
 typedef struct {
@@ -44,6 +46,14 @@ typedef struct {
 			int priority;
 			int ret;
 		} chpri;
+		struct {
+			int size;
+			void *ret;
+		} kmalloc;
+		struct {
+			char *p;
+			int ret;
+		} kmfree;
 	} un;
 } ma_syscall_param_t;
 

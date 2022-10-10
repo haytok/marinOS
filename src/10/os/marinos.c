@@ -4,6 +4,7 @@
 #include "lib.h"
 #include "interrupt.h"
 #include "syscall.h"
+#include "memory.h"
 
 #define THREAD_NUM 6
 #define PRIORITY_NUM 16
@@ -266,6 +267,21 @@ static int thread_chpri(int priority)
 	return old;
 }
 
+// このレイヤーではスレッドの readuque のための操作を実施しなければならない。
+// memory.c で定義したメモリ管理のためのメイン処理関数 mamem_alloc を呼び出す。
+static void *thread_kmalloc(int size)
+{
+	putcurrent();
+	return mamem_alloc(size);
+}
+
+static int thread_kmfree(void *p)
+{
+	mamem_free(p);
+	putcurrent();
+	return 0;
+}
+
 // 割り込みハンドラの登録
 static int setintr(softvec_type_t type, ma_handler_t handler)
 {
@@ -299,26 +315,19 @@ static void call_functions(ma_syscall_type_t type, ma_syscall_param_t *p)
 		p->un.sleep.ret = thread_sleep();
 		break;
 	case MA_SYSCALL_TYPE_WAKEUP:
-		DEBUG_CHAR("[0] [call_functions] ");
-		DEBUG_XVAL(p->un.wakeup.id, 0);
-		DEBUG_NEWLINE();
-
 		p->un.wakeup.ret = thread_wakeup(p->un.wakeup.id);
 		break;
 	case MA_SYSCALL_TYPE_GETID:
 		p->un.getid.ret = thread_getid();
 		break;
 	case MA_SYSCALL_TYPE_CHPRI:
-		DEBUG_CHAR("[1] [call_functions] p->un.chpri.priority ");
-		DEBUG_XVAL(p->un.chpri.priority, 0);
-		DEBUG_NEWLINE();
-
 		p->un.chpri.ret = thread_chpri(p->un.chpri.priority);
-
-		DEBUG_CHAR("[2] [call_functions] p->un.chpri.ret ");
-		DEBUG_XVAL(p->un.chpri.ret, 0);
-		DEBUG_NEWLINE();
-
+		break;
+	case MA_SYSCALL_TYPE_KMALLOC:
+		p->un.kmalloc.ret = thread_kmalloc(p->un.kmalloc.size);
+		break;
+	case MA_SYSCALL_TYPE_KMFREE:
+		p->un.kmfree.ret = thread_kmfree(p->un.kmfree.p);
 		break;
 	default:
 		break;
@@ -420,6 +429,8 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
 void ma_start(ma_func_t func, char *name, int priority, int stacksize, int argc,
 	      char *argv[])
 {
+	mamem_init();
+
 	current = NULL;
 	memset(readyque, 0, sizeof(readyque));
 	memset(threads, 0, sizeof(threads));

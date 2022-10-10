@@ -44,22 +44,9 @@ int ma_sleep(void)
 
 int ma_wakeup(ma_thread_id_t id)
 {
-	DEBUG_CHAR("[0] [ma_wakeup] ");
-	DEBUG_XVAL(id, 0);
-	DEBUG_NEWLINE();
-
 	ma_syscall_param_t param;
 	param.un.wakeup.id = id;
 	ma_syscall(MA_SYSCALL_TYPE_WAKEUP, &param);
-
-	DEBUG_CHAR("[1] [ma_wakeup] ");
-	DEBUG_XVAL(id, 0);
-	DEBUG_NEWLINE();
-
-	DEBUG_CHAR("[2] [ma_wakeup] ");
-	DEBUG_XVAL(param.un.wakeup.ret, 0);
-	DEBUG_NEWLINE();
-
 	return param.un.wakeup.ret;
 }
 
@@ -76,4 +63,21 @@ int ma_chpri(int priority)
 	param.un.chpri.priority = priority;
 	ma_syscall(MA_SYSCALL_TYPE_CHPRI, &param);
 	return param.un.chpri.ret;
+}
+
+// 各アプリケーションスレッド (ex. test10_1_main.c など) から呼び出される。
+void *ma_kmalloc(int size)
+{
+	ma_syscall_param_t param;
+	param.un.kmalloc.size = size;
+	ma_syscall(MA_SYSCALL_TYPE_KMALLOC, &param);
+	return param.un.kmalloc.ret;
+}
+
+int ma_kmfree(void *p)
+{
+	ma_syscall_param_t param;
+	param.un.kmfree.p = p;
+	ma_syscall(MA_SYSCALL_TYPE_KMFREE, &param);
+	return param.un.kmfree.ret;
 }
