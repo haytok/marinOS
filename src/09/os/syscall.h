@@ -6,6 +6,11 @@
 typedef enum {
 	MA_SYSCALL_TYPE_RUN = 0,
 	MA_SYSCALL_TYPE_EXIT,
+	MA_SYSCALL_TYPE_WAIT,
+	MA_SYSCALL_TYPE_SLEEP,
+	MA_SYSCALL_TYPE_WAKEUP,
+	MA_SYSCALL_TYPE_GETID,
+	MA_SYSCALL_TYPE_CHPRI,
 } ma_syscall_type_t;
 
 typedef struct {
@@ -13,6 +18,7 @@ typedef struct {
 		struct {
 			ma_func_t func;
 			char *name;
+			int priority;
 			int stacksize;
 			int argc;
 			char **argv;
@@ -21,6 +27,23 @@ typedef struct {
 		struct {
 			int dummy;
 		} exit;
+		struct {
+			int ret;
+		} wait;
+		struct {
+			int ret;
+		} sleep;
+		struct {
+			ma_thread_id_t id;
+			int ret;
+		} wakeup;
+		struct {
+			ma_thread_id_t ret;
+		} getid;
+		struct {
+			int priority;
+			int ret;
+		} chpri;
 	} un;
 } ma_syscall_param_t;
 

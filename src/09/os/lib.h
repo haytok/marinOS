@@ -1,7 +1,25 @@
 #ifndef _LIB_H_INCLUDED_
 #define _LIB_H_INCLUDED_
 
-#define PRINT_NEWLINE() puts("\n");
+extern int is_debug;
+
+#define DEBUG_CHAR(msg)            \
+	do {                       \
+		if (is_debug)      \
+			puts(msg); \
+	} while (0)
+
+#define DEBUG_XVAL(value, column)               \
+	do {                                    \
+		if (is_debug)                   \
+			putxval(value, column); \
+	} while (0)
+
+#define DEBUG_NEWLINE()             \
+	do {                        \
+		if (is_debug)       \
+			puts("\n"); \
+	} while (0)
 
 // int putc(int c, FILE *stream);
 int putc(unsigned char c);
