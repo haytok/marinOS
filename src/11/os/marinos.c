@@ -36,6 +36,25 @@ typedef struct _ma_thread {
 	ma_context context;
 } ma_thread;
 
+// 送信側がこの型のオブジェクトを作成して msgboxes に投げる。
+typedef struct _ma_msgbuf {
+	struct _ma_msgbuf *next;
+	ma_thread *sender;
+	struct {
+		int size;
+		char *p;
+	} param;
+} ma_msgbuf;
+
+typedef struct _ma_msgbox {
+	// メッセージが送信される前に受信要求を投げた時に使用する変数
+	// また、この変数を使用して送信されたメッセージの実体を受け渡す。
+	ma_thread *receiver;
+	ma_msgbuf *head;
+	ma_msgbuf *tail;
+	long dummy[1]; // これをコメントアウトしてもコンパイルが通った ...
+} ma_msgbox;
+
 static struct {
 	ma_thread *head;
 	ma_thread *tail;
@@ -44,6 +63,7 @@ static struct {
 static ma_thread *current;
 static ma_thread threads[THREAD_NUM];
 static ma_handler_t handlers[SOFTVEC_TYPE_NUM];
+static ma_msgbox msgboxes[MSGBOX_ID_NUM];
 
 void dispatch(ma_context *context);
 
@@ -202,26 +222,10 @@ static int thread_sleep(void)
 
 static int thread_wakeup(ma_thread_id_t id)
 {
-	DEBUG_CHAR("[0] [thread_wakeup] id ");
-	DEBUG_XVAL(id, 0);
-	DEBUG_NEWLINE();
-
-	DEBUG_CHAR("[1] [thread_wakeup] current->name ");
-	DEBUG_CHAR(current->name);
-	DEBUG_NEWLINE();
-
 	putcurrent();
-
-	DEBUG_CHAR("[2] [thread_wakeup] current->name ");
-	DEBUG_CHAR(current->name);
-	DEBUG_NEWLINE();
 
 	current = (ma_thread *)id;
 	putcurrent();
-
-	DEBUG_CHAR("[3] [thread_wakeup] current->name ");
-	DEBUG_CHAR(current->name);
-	DEBUG_NEWLINE();
 
 	return 0;
 }
@@ -235,18 +239,7 @@ static ma_thread_id_t thread_getid(void)
 
 static int thread_chpri(int priority)
 {
-	DEBUG_CHAR("[0] [thread_chpri] current->name ");
-	DEBUG_CHAR(current->name);
-	DEBUG_NEWLINE();
-
 	int old = current->priority;
-
-	DEBUG_CHAR("[1] [thread_chpri] old ");
-	DEBUG_XVAL(old, 0);
-	DEBUG_NEWLINE();
-	DEBUG_CHAR("[2] [thread_chpri] priority ");
-	DEBUG_XVAL(priority, 0);
-	DEBUG_NEWLINE();
 
 	// priority に変な値が入っていないかのチェックを行う。
 	// 書籍には入れていなかったが、上限のチェックも実装した。
@@ -254,15 +247,7 @@ static int thread_chpri(int priority)
 		current->priority = priority;
 	}
 
-	DEBUG_CHAR("[4] [thread_chpri] current->priority ");
-	DEBUG_XVAL(current->priority, 0);
-	DEBUG_NEWLINE();
-
 	putcurrent();
-
-	DEBUG_CHAR("[5] [thread_chpri] current->name ");
-	DEBUG_CHAR(current->name);
-	DEBUG_NEWLINE();
 
 	return old;
 }
@@ -280,6 +265,135 @@ static int thread_kmfree(void *p)
 	mamem_free(p);
 	putcurrent();
 	return 0;
+}
+
+// sendmsg と recvmsg は thread_send と thread_recv の中からしか呼ばれないのでヘッダファイルにわざわざ定義していない。
+// msgboxes の該当する ID の箇所に作成したオブジェクトを突っ込む
+static void sendmsg(ma_msgbox *mboxp, ma_thread *thp, int size, char *p)
+{
+	ma_msgbuf *mp;
+
+	mp = (ma_msgbuf *)mamem_alloc(sizeof(*mp));
+	if (mp == NULL) {
+		ma_sysdown();
+	}
+
+	mp->next = NULL;
+	mp->sender = thp;
+	mp->param.size = size;
+	mp->param.p = p;
+	if (mboxp->tail) {
+		mboxp->tail->next = mp;
+	} else {
+		mboxp->head = mp;
+	}
+	mboxp->tail = mp;
+}
+
+// mboxp から送信されたデータを読み出す。
+// つまり、この関数を呼び出すことで呼び出された受信のシステムコールの引数に送信されたデータを書き込むことができる。
+// そればできるのは mboxp に receiver の変数が存在するからである。
+static void recvmsg(ma_msgbox *mboxp)
+{
+	puts("[0] [recvmsg]");
+	puts("\n");
+
+	ma_msgbuf *mp;
+	ma_syscall_param_t *p;
+
+	// 必ず mboxp にはメッセージが存在している前提で処理を実装しても OK ???
+	// mboxp から先頭のメッセージを取り出す。
+	mp = mboxp->head;
+	mboxp->head = mp->next;
+	if (mboxp->head == NULL) {
+		mboxp->tail = NULL;
+	}
+	// mp->next が NULL でも何かのポインタを挿していても mboxp の先頭のポインタは書き換えないといけない。
+	mp->next = NULL;
+
+	puts("[00] [recvmsg] mp->param.p ");
+	puts(mp->param.p);
+	puts("\n");
+	puts("[000] [recvmsg] mp->param.size ");
+	putxval(mp->param.size, 0);
+	puts("[0000] [recvmsg] mp->sender ");
+	putxval(mp->sender, 0);
+	puts("\n");
+
+	// 受信側は送信側が送信したデータを読み出す。
+	p = mboxp->receiver->syscall.param;
+	p->un.recv.ret = (ma_thread_id_t)mp->sender;
+	if (p->un.recv.sizep) {
+		*(p->un.recv.sizep) = mp->param.size;
+	}
+	if (p->un.recv.pp) {
+		*(p->un.recv.pp) = mp->param.p;
+	}
+	mboxp->receiver = NULL;
+	// ma_kmfree() を呼び出すとエラーになる
+	mamem_free(mp);
+
+	puts("[1] [recvmsg]");
+	puts("\n");
+}
+
+// send と recv の呼び出し元
+// sender と receiver は事前に送信先/受信先のメッセージボックス ID を知っておく必要がある。
+// size or -1 を返す。
+static int thread_send(kz_msgbox_id_t id, int size, char *p)
+{
+	ma_msgbox *mboxp = &msgboxes[id];
+
+	putcurrent();
+	sendmsg(mboxp, current, size, p);
+
+	// 受信待ちのスレッドがあるかを判断する変数
+	// つまり、送信より先に受信のリクエストが飛んでいたら、この変数にその受信要求をしたスレッドの ID が入っている。
+	if (mboxp->receiver) {
+		puts("[0] [thread_send]");
+		puts("\n");
+		// 寝ているスレッドを起こして受信をさせる。
+		current = mboxp->receiver;
+
+		puts("[1] [thread_send] current->name ");
+		puts(current->name);
+		puts("\n");
+
+		recvmsg(mboxp);
+
+		puts("[2] [thread_send]");
+		puts("\n");
+		putcurrent();
+	} // そうでない時は特に何もせず、recv のシステコールが呼ばれた時に送信されたメッセージを読み出す。
+
+	return size;
+}
+
+// 引数に sizep とか pp の変数はいらんくないか？？？
+// 送信側のスレッドの ID を返す。なんでこの値を返すようにしているかは不明。
+static ma_thread_id_t thread_recv(kz_msgbox_id_t id, int *sizep, char **pp)
+{
+	ma_msgbox *mboxp = &msgboxes[id];
+
+	// 他にそのメッセージを受信しようとしているスレッドがいた時
+	// この例外処理もどうなんや？？？
+	if (mboxp->receiver) {
+		ma_sysdown();
+	}
+
+	mboxp->receiver = current;
+
+	// 送信されるより先に受信要求を送ってしまった場合
+	if (mboxp->head == NULL) {
+		// getcurrent() してから putcurrent() をしていないので、このスレッドは寝る。
+		return -1;
+	}
+
+	recvmsg(mboxp);
+	putcurrent();
+
+	// recvmsg が実行された時点で ret に結果は代入されている。
+	return current->syscall.param->un.recv.ret;
 }
 
 // 割り込みハンドラの登録
@@ -329,6 +443,14 @@ static void call_functions(ma_syscall_type_t type, ma_syscall_param_t *p)
 	case MA_SYSCALL_TYPE_KMFREE:
 		p->un.kmfree.ret = thread_kmfree(p->un.kmfree.p);
 		break;
+	case MA_SYSCALL_TYPE_SEND:
+		p->un.send.ret = thread_send(p->un.send.id, p->un.send.size,
+					     p->un.send.p);
+		break;
+	case MA_SYSCALL_TYPE_RECV:
+		p->un.recv.ret = thread_recv(p->un.recv.id, p->un.recv.sizep,
+					     p->un.recv.pp);
+		break;
 	default:
 		break;
 	}
@@ -337,25 +459,12 @@ static void call_functions(ma_syscall_type_t type, ma_syscall_param_t *p)
 static void syscall_proc(ma_syscall_type_t type, ma_syscall_param_t *p)
 {
 	getcurrent();
-
-	DEBUG_CHAR("[0] [syscall_proc] p->un.wakeup.id ");
-	DEBUG_XVAL(type, 0);
-	DEBUG_NEWLINE();
-
 	call_functions(type, p);
-
-	DEBUG_CHAR("[1] [syscall_proc] p->un.wakeup.id ");
-	DEBUG_XVAL(p->un.wakeup.id, 0);
-	DEBUG_NEWLINE();
 }
 
 // 2022/10/10 はここから実装を再開する。
 static void schedule(void)
 {
-	DEBUG_CHAR("[0] [schedule] current->name ");
-	DEBUG_CHAR(current->name);
-	DEBUG_NEWLINE();
-
 	int i;
 
 	for (i = 0; i < PRIORITY_NUM; i++) {
@@ -367,10 +476,6 @@ static void schedule(void)
 		ma_sysdown();
 	}
 
-	DEBUG_CHAR("[1] [schedule] i ");
-	DEBUG_XVAL(i, 0);
-	DEBUG_NEWLINE();
-
 	current = readyque[i].head;
 }
 
@@ -380,10 +485,6 @@ static void syscall_intr(void)
 {
 	// グローバル変数を用いて syscall_proc を呼び出す。
 	syscall_proc(current->syscall.type, current->syscall.param);
-
-	DEBUG_CHAR("[0] [syscall_intr] p->un.wakeup.id ");
-	DEBUG_XVAL(current->syscall.param->un.wakeup.id, 0);
-	DEBUG_NEWLINE();
 }
 
 // ソフトウェアエラーの発生
@@ -408,18 +509,10 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
 		handlers[type]();
 	}
 
-	DEBUG_CHAR("[0] [thread_intr] current->name ");
-	DEBUG_CHAR(current->name);
-	DEBUG_NEWLINE();
-
 	// なんでこれを実行するんかな ...
 	// softerr_intr が上の handler の処理で実行されたときに、current が NULL になった時を想定してる？？？
 	// それ以外の場合であれば current には何かしらの context は保持されていると思うけど ...
 	schedule();
-
-	DEBUG_CHAR("[1] [thread_intr] current->name ");
-	DEBUG_CHAR(current->name);
-	DEBUG_NEWLINE();
 
 	dispatch(&current->context);
 }
@@ -435,19 +528,13 @@ void ma_start(ma_func_t func, char *name, int priority, int stacksize, int argc,
 	memset(readyque, 0, sizeof(readyque));
 	memset(threads, 0, sizeof(threads));
 	memset(handlers, 0, sizeof(handlers));
+	memset(msgboxes, 0, sizeof(msgboxes));
 
 	setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr);
 	setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr);
 
 	current = (ma_thread *)thread_run(func, name, priority, stacksize, argc,
 					  argv);
-
-	// puts("[ma_start] current->name : ");
-	// puts(current->name);
-	// puts("\n");
-
-	DEBUG_CHAR("[ma_start] ...");
-	DEBUG_NEWLINE();
 
 	dispatch(&current->context);
 

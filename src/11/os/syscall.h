@@ -13,6 +13,8 @@ typedef enum {
 	MA_SYSCALL_TYPE_CHPRI,
 	MA_SYSCALL_TYPE_KMALLOC,
 	MA_SYSCALL_TYPE_KMFREE,
+	MA_SYSCALL_TYPE_SEND,
+	MA_SYSCALL_TYPE_RECV,
 } ma_syscall_type_t;
 
 typedef struct {
@@ -54,6 +56,18 @@ typedef struct {
 			char *p;
 			int ret;
 		} kmfree;
+		struct {
+			kz_msgbox_id_t id;
+			int size;
+			char *p;
+			int ret;
+		} send;
+		struct {
+			kz_msgbox_id_t id;
+			int *sizep;
+			char **pp;
+			kz_msgbox_id_t ret; // 送信側のスレッド ID が格納される。
+		} recv;
 	} un;
 } ma_syscall_param_t;
 

@@ -81,3 +81,24 @@ int ma_kmfree(void *p)
 	ma_syscall(MA_SYSCALL_TYPE_KMFREE, &param);
 	return param.un.kmfree.ret;
 }
+
+int ma_send(kz_msgbox_id_t id, int size, char *p)
+{
+	ma_syscall_param_t param;
+	param.un.send.id = id; // 宛先メッセージボックス ID
+	param.un.send.size = size;
+	param.un.send.p = p;
+	ma_syscall(MA_SYSCALL_TYPE_SEND, &param);
+	return param.un.send.ret;
+}
+
+ma_thread_id_t ma_recv(kz_msgbox_id_t id, int *sizep, char **pp)
+{
+	ma_syscall_param_t param;
+	// 受信側のスレッドがメッセージボックスから該当する検索するために必要なメッセージボックス ID
+	param.un.recv.id = id;
+	param.un.recv.sizep = sizep;
+	param.un.recv.pp = pp;
+	ma_syscall(MA_SYSCALL_TYPE_RECV, &param);
+	return param.un.recv.ret;
+}

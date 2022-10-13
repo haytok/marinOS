@@ -10,7 +10,8 @@ int is_debug = 0;
 
 static int start_threads(int argc, char *argv[])
 {
-	ma_run(test10_1_main, "test10_1", 1, 0x100, 0, NULL);
+	ma_run(test11_1_main, "test11_1", 1, 0x100, 0, NULL);
+	ma_run(test11_2_main, "test11_2", 2, 0x100, 0, NULL);
 
 	// idle スレッドの優先度を一番下の 15 に変更する。
 	ma_chpri(15);
