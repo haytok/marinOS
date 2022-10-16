@@ -331,6 +331,8 @@ static void recvmsg(ma_msgbox *mboxp)
 	}
 	mboxp->receiver = NULL;
 	// ma_kmfree() を呼び出すとエラーになる
+	// ma_kmfree() はスレッドから呼び出すもので、その中の処理で呼び出すとバグる。
+	// なので、ma_kmfree() の中で呼び出されている mamem_free() を呼び出すことでメモリ領域をクリアにしている。
 	mamem_free(mp);
 
 	puts("[1] [recvmsg]");
