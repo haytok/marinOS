@@ -9,179 +9,181 @@
 #define CONS_BUFFER_SIZE 24
 
 static struct consreg {
-  kz_thread_id_t id; /* ¥³¥ó¥½¡¼¥ë¤òÍøÍÑ¤¹¤ë¥¹¥ì¥Ã¥É */
-  int index;         /* ÍøÍÑ¤¹¤ë¥·¥ê¥¢¥ë¤ÎÈÖ¹æ */
+	kz_thread_id_t
+		id; /* ï¿½ï¿½ï¿½ó¥½¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¤ï¿½ï¿½ë¥¹ï¿½ï¿½Ã¥ï¿½ */
+	int index; /* ï¿½ï¿½ï¿½Ñ¤ï¿½ï¿½ë¥·ï¿½ê¥¢ï¿½ï¿½ï¿½ï¿½Ö¹ï¿½ */
 
-  char *send_buf;    /* Á÷¿®¥Ð¥Ã¥Õ¥¡ */
-  char *recv_buf;    /* ¼õ¿®¥Ð¥Ã¥Õ¥¡ */
-  int send_len;      /* Á÷¿®¥Ð¥Ã¥Õ¥¡Ãæ¤Î¥Ç¡¼¥¿¥µ¥¤¥º */
-  int recv_len;      /* ¼õ¿®¥Ð¥Ã¥Õ¥¡Ãæ¤Î¥Ç¡¼¥¿¥µ¥¤¥º */
+	char *send_buf; /* ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥Õ¥ï¿½ */
+	char *recv_buf; /* ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥Õ¥ï¿½ */
+	int send_len; /* ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥Õ¥ï¿½ï¿½ï¿½Î¥Ç¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+	int recv_len; /* ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥Õ¥ï¿½ï¿½ï¿½Î¥Ç¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 
-  /* kozos.c ¤Î kz_msgbox ¤ÈÆ±ÍÍ¤ÎÍýÍ³¤Ç¡¤¥À¥ß¡¼¡¦¥á¥ó¥Ð¤Ç¥µ¥¤¥ºÄ´À°¤¹¤ë */
-  long dummy[3];
+	/* kozos.c ï¿½ï¿½ kz_msgbox ï¿½ï¿½Æ±ï¿½Í¤ï¿½ï¿½ï¿½Í³ï¿½Ç¡ï¿½ï¿½ï¿½ï¿½ß¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¤Ç¥ï¿½ï¿½ï¿½ï¿½ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+	long dummy[3];
 } consreg[CONSDRV_DEVICE_NUM];
 
 /*
- * °Ê²¼¤Î£²¤Ä¤Î´Ø¿ô(send_char(), send_string())¤Ï³ä¹þ¤ß½èÍý¤È¥¹¥ì¥Ã¥É¤«¤é
- * ¸Æ¤Ð¤ì¤ë¤¬Á÷¿®¥Ð¥Ã¥Õ¥¡¤òÁàºî¤·¤Æ¤ª¤êºÆÆþÉÔ²Ä¤Î¤¿¤á¡¤¥¹¥ì¥Ã¥É¤«¤é¸Æ¤Ó½Ð¤¹
- * ¾ì¹ç¤ÏÇÓÂ¾¤Î¤¿¤á³ä¹þ¤ß¶Ø»ß¾õÂÖ¤Ç¸Æ¤Ö¤³¤È¡¥
+ * ï¿½Ê²ï¿½ï¿½Î£ï¿½ï¿½Ä¤Î´Ø¿ï¿½(send_char(), send_string())ï¿½Ï³ï¿½ï¿½ï¿½ß½ï¿½ï¿½ï¿½ï¿½È¥ï¿½ï¿½ï¿½Ã¥É¤ï¿½ï¿½ï¿½
+ * ï¿½Æ¤Ð¤ï¿½ë¤¬ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥Õ¥ï¿½ï¿½ï¿½ï¿½ï¿½î¤·ï¿½Æ¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô²Ä¤Î¤ï¿½ï¿½á¡¤ï¿½ï¿½ï¿½ï¿½Ã¥É¤ï¿½ï¿½ï¿½Æ¤Ó½Ð¤ï¿½
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¾ï¿½Î¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¶Ø»ß¾ï¿½ï¿½Ö¤Ç¸Æ¤Ö¤ï¿½ï¿½È¡ï¿½
  */
 
-/* Á÷¿®¥Ð¥Ã¥Õ¥¡¤ÎÀèÆ¬£±Ê¸»ú¤òÁ÷¿®¤¹¤ë */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥Õ¥ï¿½ï¿½ï¿½ï¿½ï¿½Æ¬ï¿½ï¿½Ê¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 static void send_char(struct consreg *cons)
 {
-  int i;
-  serial_send_byte(cons->index, cons->send_buf[0]);
-  cons->send_len--;
-  /* ÀèÆ¬Ê¸»ú¤òÁ÷¿®¤·¤¿¤Î¤Ç¡¤£±Ê¸»ú¤Ö¤ó¤º¤é¤¹ */
-  for (i = 0; i < cons->send_len; i++)
-    cons->send_buf[i] = cons->send_buf[i + 1];
+	int i;
+	serial_send_byte(cons->index, cons->send_buf[0]);
+	cons->send_len--;
+	/* ï¿½ï¿½Æ¬Ê¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î¤Ç¡ï¿½ï¿½ï¿½Ê¸ï¿½ï¿½ï¿½Ö¤ó¤º¤é¤¹ */
+	for (i = 0; i < cons->send_len; i++)
+		cons->send_buf[i] = cons->send_buf[i + 1];
 }
 
-/* Ê¸»úÎó¤òÁ÷¿®¥Ð¥Ã¥Õ¥¡¤Ë½ñ¤­¹þ¤ßÁ÷¿®³«»Ï¤¹¤ë */
+/* Ê¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥Õ¥ï¿½ï¿½Ë½ñ¤­¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¤ï¿½ï¿½ï¿½ */
 static void send_string(struct consreg *cons, char *str, int len)
 {
-  int i;
-  for (i = 0; i < len; i++) { /* Ê¸»úÎó¤òÁ÷¿®¥Ð¥Ã¥Õ¥¡¤Ë¥³¥Ô¡¼ */
-    if (str[i] == '\n') /* \n¢ª\r\n¤ËÊÑ´¹ */
-      cons->send_buf[cons->send_len++] = '\r';
-    cons->send_buf[cons->send_len++] = str[i];
-  }
-  /*
-   * Á÷¿®³ä¹þ¤ßÌµ¸ú¤Ê¤é¤Ð¡¤Á÷¿®³«»Ï¤µ¤ì¤Æ¤¤¤Ê¤¤¤Î¤ÇÁ÷¿®³«»Ï¤¹¤ë¡¥
-   * Á÷¿®³ä¹þ¤ßÍ­¸ú¤Ê¤é¤ÐÁ÷¿®³«»Ï¤µ¤ì¤Æ¤ª¤ê¡¤Á÷¿®³ä¹þ¤ß¤Î±äÄ¹¤Ç
-   * Á÷¿®¥Ð¥Ã¥Õ¥¡Æâ¤Î¥Ç¡¼¥¿¤¬½ç¼¡Á÷¿®¤µ¤ì¤ë¤Î¤Ç¡¤²¿¤â¤·¤Ê¤¯¤Æ¤è¤¤¡¥
+	int i;
+	for (i = 0; i < len; i++) { /* Ê¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥Õ¥ï¿½ï¿½Ë¥ï¿½ï¿½Ô¡ï¿½ */
+		if (str[i] == '\n') /* \nï¿½ï¿½\r\nï¿½ï¿½ï¿½Ñ´ï¿½ */
+			cons->send_buf[cons->send_len++] = '\r';
+		cons->send_buf[cons->send_len++] = str[i];
+	}
+	/*
+   * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï¿½Ê¤ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¤ï¿½ï¿½ï¿½Æ¤ï¿½ï¿½Ê¤ï¿½ï¿½Î¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¤ï¿½ï¿½ë¡¥
+   * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í­ï¿½ï¿½ï¿½Ê¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¤ï¿½ï¿½ï¿½Æ¤ï¿½ï¿½ê¡¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¤Î±ï¿½Ä¹ï¿½ï¿½
+   * ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥Õ¥ï¿½ï¿½ï¿½Î¥Ç¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ç¼¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î¤Ç¡ï¿½ï¿½ï¿½ï¿½â¤·ï¿½Ê¤ï¿½ï¿½Æ¤è¤¤ï¿½ï¿½
    */
-  if (cons->send_len && !serial_intr_is_send_enable(cons->index)) {
-    serial_intr_send_enable(cons->index); /* Á÷¿®³ä¹þ¤ßÍ­¸ú²½ */
-    send_char(cons); /* Á÷¿®³«»Ï */
-  }
+	if (cons->send_len && !serial_intr_is_send_enable(cons->index)) {
+		serial_intr_send_enable(cons->index); /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í­ï¿½ï¿½ï¿½ï¿½ */
+		send_char(cons); /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+	}
 }
 
 /*
- * °Ê²¼¤Ï³ä¹þ¤ß¥Ï¥ó¥É¥é¤«¤é¸Æ¤Ð¤ì¤ë³ä¹þ¤ß½èÍý¤Ç¤¢¤ê¡¤ÈóÆ±´ü¤Ç
- * ¸Æ¤Ð¤ì¤ë¤Î¤Ç¡¤¥é¥¤¥Ö¥é¥ê´Ø¿ô¤Ê¤É¤ò¸Æ¤Ó½Ð¤¹¾ì¹ç¤Ë¤ÏÃí°Õ¤¬É¬Í×¡¥
- * ´ðËÜ¤È¤·¤Æ¡¤°Ê²¼¤Î¤¤¤º¤ì¤«¤ËÅö¤Æ¤Ï¤Þ¤ë´Ø¿ô¤·¤«¸Æ¤Ó½Ð¤·¤Æ¤Ï¤¤¤±¤Ê¤¤¡¥
- * ¡¦ºÆÆþ²ÄÇ½¤Ç¤¢¤ë¡¥
- * ¡¦¥¹¥ì¥Ã¥É¤«¤é¸Æ¤Ð¤ì¤ë¤³¤È¤ÏÌµ¤¤´Ø¿ô¤Ç¤¢¤ë¡¥
- * ¡¦¥¹¥ì¥Ã¥É¤«¤é¸Æ¤Ð¤ì¤ë¤³¤È¤¬¤¢¤ë¤¬¡¤³ä¹þ¤ß¶Ø»ß¤Ç¸Æ¤Ó½Ð¤·¤Æ¤¤¤ë¡¥
- * ¤Þ¤¿Èó¥³¥ó¥Æ¥­¥¹¥È¾õÂÖ¤Ç¸Æ¤Ð¤ì¤ë¤¿¤á¡¤¥·¥¹¥Æ¥à¡¦¥³¡¼¥ë¤ÏÍøÍÑ¤·¤Æ¤Ï¤¤¤±¤Ê¤¤¡¥
- * (¥µ¡¼¥Ó¥¹¡¦¥³¡¼¥ë¤òÍøÍÑ¤¹¤ë¤³¤È)
+ * ï¿½Ê²ï¿½ï¿½Ï³ï¿½ï¿½ï¿½ß¥Ï¥ï¿½É¥é¤«ï¿½ï¿½Æ¤Ð¤ï¿½ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½ï¿½ï¿½Ç¤ï¿½ï¿½ê¡¤ï¿½ï¿½Æ±ï¿½ï¿½ï¿½ï¿½
+ * ï¿½Æ¤Ð¤ï¿½ï¿½Î¤Ç¡ï¿½ï¿½é¥¤ï¿½Ö¥ï¿½ï¿½Ø¿ï¿½ï¿½Ê¤É¤ï¿½Æ¤Ó½Ð¤ï¿½ï¿½ï¿½ï¿½Ë¤ï¿½ï¿½ï¿½ï¿½Õ¤ï¿½É¬ï¿½×¡ï¿½
+ * ï¿½ï¿½ï¿½Ü¤È¤ï¿½ï¿½Æ¡ï¿½ï¿½Ê²ï¿½ï¿½Î¤ï¿½ï¿½ï¿½ï¿½ì¤«ï¿½ï¿½ï¿½ï¿½ï¿½Æ¤Ï¤Þ¤ï¿½Ø¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¤Ó½Ð¤ï¿½ï¿½Æ¤Ï¤ï¿½ï¿½ï¿½ï¿½Ê¤ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç½ï¿½Ç¤ï¿½ï¿½ë¡¥
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¥É¤ï¿½ï¿½ï¿½Æ¤Ð¤ï¿½ë¤³ï¿½È¤ï¿½Ìµï¿½ï¿½ï¿½Ø¿ï¿½ï¿½Ç¤ï¿½ï¿½ë¡¥
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¥É¤ï¿½ï¿½ï¿½Æ¤Ð¤ï¿½ë¤³ï¿½È¤ï¿½ï¿½ï¿½ï¿½ë¤¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¶Ø»ß¤Ç¸Æ¤Ó½Ð¤ï¿½ï¿½Æ¤ï¿½ï¿½ë¡¥
+ * ï¿½Þ¤ï¿½ï¿½ó¥³¥ï¿½Æ¥ï¿½ï¿½ï¿½ï¿½È¾ï¿½ï¿½Ö¤Ç¸Æ¤Ð¤ï¿½ë¤¿ï¿½á¡¤ï¿½ï¿½ï¿½ï¿½ï¿½Æ¥à¡¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¤ï¿½ï¿½Æ¤Ï¤ï¿½ï¿½ï¿½ï¿½Ê¤ï¿½ï¿½ï¿½
+ * (ï¿½ï¿½ï¿½ï¿½ï¿½Ó¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¤ï¿½ï¿½ë¤³ï¿½ï¿½)
  */
 static int consdrv_intrproc(struct consreg *cons)
 {
-  unsigned char c;
-  char *p;
+	unsigned char c;
+	char *p;
 
-  if (serial_is_recv_enable(cons->index)) { /* ¼õ¿®³ä¹þ¤ß */
-    c = serial_recv_byte(cons->index);
-    if (c == '\r') /* ²þ¹Ô¥³¡¼¥ÉÊÑ´¹(\r¢ª\n) */
-      c = '\n';
+	if (serial_is_recv_enable(cons->index)) { /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+		c = serial_recv_byte(cons->index);
+		if (c == '\r') /* ï¿½ï¿½ï¿½Ô¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½(\rï¿½ï¿½\n) */
+			c = '\n';
 
-    send_string(cons, &c, 1); /* ¥¨¥³¡¼¥Ð¥Ã¥¯½èÍý */
+		send_string(cons, &c, 1); /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥ï¿½ï¿½ï¿½ï¿½ï¿½ */
 
-    if (cons->id) {
-      if (c != '\n') {
-	/* ²þ¹Ô¤Ç¤Ê¤¤¤Ê¤é¡¤¼õ¿®¥Ð¥Ã¥Õ¥¡¤Ë¥Ð¥Ã¥Õ¥¡¥ê¥ó¥°¤¹¤ë */
-	cons->recv_buf[cons->recv_len++] = c;
-      } else {
-	/*
-	 * Enter¤¬²¡¤µ¤ì¤¿¤é¡¤¥Ð¥Ã¥Õ¥¡¤ÎÆâÍÆ¤ò
-	 * ¥³¥Þ¥ó¥É½èÍý¥¹¥ì¥Ã¥É¤ËÄÌÃÎ¤¹¤ë¡¥
-	 * (³ä¹þ¤ß¥Ï¥ó¥É¥é¤Ê¤Î¤Ç¡¤¥µ¡¼¥Ó¥¹¡¦¥³¡¼¥ë¤òÍøÍÑ¤¹¤ë)
+		if (cons->id) {
+			if (c != '\n') {
+				/* ï¿½ï¿½ï¿½Ô¤Ç¤Ê¤ï¿½ï¿½Ê¤é¡¤ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥Õ¥ï¿½ï¿½Ë¥Ð¥Ã¥Õ¥ï¿½ï¿½ï¿½ó¥°¤ï¿½ï¿½ï¿½ */
+				cons->recv_buf[cons->recv_len++] = c;
+			} else {
+				/*
+	 * Enterï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ì¤¿ï¿½é¡¤ï¿½Ð¥Ã¥Õ¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¤ï¿½
+	 * ï¿½ï¿½ï¿½Þ¥ï¿½É½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¥É¤ï¿½ï¿½ï¿½ï¿½Î¤ï¿½ï¿½ë¡¥
+	 * (ï¿½ï¿½ï¿½ï¿½ß¥Ï¥ï¿½É¥ï¿½Ê¤Î¤Ç¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¤ï¿½ï¿½ï¿½)
 	 */
-	p = kx_kmalloc(CONS_BUFFER_SIZE);
-	memcpy(p, cons->recv_buf, cons->recv_len);
-	kx_send(MSGBOX_ID_CONSINPUT, cons->recv_len, p);
-	cons->recv_len = 0;
-      }
-    }
-  }
+				p = kx_kmalloc(CONS_BUFFER_SIZE);
+				memcpy(p, cons->recv_buf, cons->recv_len);
+				kx_send(MSGBOX_ID_CONSINPUT, cons->recv_len, p);
+				cons->recv_len = 0;
+			}
+		}
+	}
 
-  if (serial_is_send_enable(cons->index)) { /* Á÷¿®³ä¹þ¤ß */
-    if (!cons->id || !cons->send_len) {
-      /* Á÷¿®¥Ç¡¼¥¿¤¬Ìµ¤¤¤Ê¤é¤Ð¡¤Á÷¿®½èÍý½ªÎ» */
-      serial_intr_send_disable(cons->index);
-    } else {
-      /* Á÷¿®¥Ç¡¼¥¿¤¬¤¢¤ë¤Ê¤é¤Ð¡¤°úÂ³¤­Á÷¿®¤¹¤ë */
-      send_char(cons);
-    }
-  }
+	if (serial_is_send_enable(cons->index)) { /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+		if (!cons->id || !cons->send_len) {
+			/* ï¿½ï¿½ï¿½ï¿½ï¿½Ç¡ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï¿½Ê¤ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î» */
+			serial_intr_send_disable(cons->index);
+		} else {
+			/* ï¿½ï¿½ï¿½ï¿½ï¿½Ç¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¤ï¿½Ð¡ï¿½ï¿½ï¿½Â³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+			send_char(cons);
+		}
+	}
 
-  return 0;
+	return 0;
 }
 
-/* ³ä¹þ¤ß¥Ï¥ó¥É¥é */
+/* ï¿½ï¿½ï¿½ï¿½ß¥Ï¥ï¿½É¥ï¿½ */
 static void consdrv_intr(void)
 {
-  int i;
-  struct consreg *cons;
+	int i;
+	struct consreg *cons;
 
-  for (i = 0; i < CONSDRV_DEVICE_NUM; i++) {
-    cons = &consreg[i];
-    if (cons->id) {
-      if (serial_is_send_enable(cons->index) ||
-	  serial_is_recv_enable(cons->index))
-	/* ³ä¹þ¤ß¤¬¤¢¤ë¤Ê¤é¤Ð¡¤³ä¹þ¤ß½èÍý¤ò¸Æ¤Ó½Ð¤¹ */
-	consdrv_intrproc(cons);
-    }
-  }
+	for (i = 0; i < CONSDRV_DEVICE_NUM; i++) {
+		cons = &consreg[i];
+		if (cons->id) {
+			if (serial_is_send_enable(cons->index) ||
+			    serial_is_recv_enable(cons->index))
+				/* ï¿½ï¿½ï¿½ï¿½ß¤ï¿½ï¿½ï¿½ï¿½ï¿½Ê¤ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¤Ó½Ð¤ï¿½ */
+				consdrv_intrproc(cons);
+		}
+	}
 }
 
 static int consdrv_init(void)
 {
-  memset(consreg, 0, sizeof(consreg));
-  return 0;
+	memset(consreg, 0, sizeof(consreg));
+	return 0;
 }
 
-/* ¥¹¥ì¥Ã¥É¤«¤é¤ÎÍ×µá¤ò½èÍý¤¹¤ë */
-static int consdrv_command(struct consreg *cons, kz_thread_id_t id,
-			   int index, int size, char *command)
+/* ï¿½ï¿½ï¿½ï¿½Ã¥É¤ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+static int consdrv_command(struct consreg *cons, kz_thread_id_t id, int index,
+			   int size, char *command)
 {
-  switch (command[0]) {
-  case CONSDRV_CMD_USE: /* ¥³¥ó¥½¡¼¥ë¡¦¥É¥é¥¤¥Ð¤Î»ÈÍÑ³«»Ï */
-    cons->id = id;
-    cons->index = command[1] - '0';
-    cons->send_buf = kz_kmalloc(CONS_BUFFER_SIZE);
-    cons->recv_buf = kz_kmalloc(CONS_BUFFER_SIZE);
-    cons->send_len = 0;
-    cons->recv_len = 0;
-    serial_init(cons->index);
-    serial_intr_recv_enable(cons->index); /* ¼õ¿®³ä¹þ¤ßÍ­¸ú²½(¼õ¿®³«»Ï) */
-    break;
+	switch (command[0]) {
+	case CONSDRV_CMD_USE: /* ï¿½ï¿½ï¿½ó¥½¡ï¿½ï¿½ë¡¦ï¿½É¥é¥¤ï¿½Ð¤Î»ï¿½ï¿½Ñ³ï¿½ï¿½ï¿½ */
+		cons->id = id;
+		cons->index = command[1] - '0';
+		cons->send_buf = kz_kmalloc(CONS_BUFFER_SIZE);
+		cons->recv_buf = kz_kmalloc(CONS_BUFFER_SIZE);
+		cons->send_len = 0;
+		cons->recv_len = 0;
+		serial_init(cons->index);
+		serial_intr_recv_enable(
+			cons->index); /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í­ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½) */
+		break;
 
-  case CONSDRV_CMD_WRITE: /* ¥³¥ó¥½¡¼¥ë¤Ø¤ÎÊ¸»úÎó½ÐÎÏ */
-    /*
-     * send_string()¤Ç¤ÏÁ÷¿®¥Ð¥Ã¥Õ¥¡¤òÁàºî¤·¤Æ¤ª¤êºÆÆþÉÔ²Ä¤Ê¤Î¤Ç¡¤
-     * ÇÓÂ¾¤Î¤¿¤á¤Ë³ä¹þ¤ß¶Ø»ß¤Ë¤·¤Æ¸Æ¤Ó½Ð¤¹¡¥
+	case CONSDRV_CMD_WRITE: /* ï¿½ï¿½ï¿½ó¥½¡ï¿½ï¿½ï¿½Ø¤ï¿½Ê¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+		/*
+     * send_string()ï¿½Ç¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¥Ã¥Õ¥ï¿½ï¿½ï¿½ï¿½ï¿½î¤·ï¿½Æ¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô²Ä¤Ê¤Î¤Ç¡ï¿½
+     * ï¿½ï¿½Â¾ï¿½Î¤ï¿½ï¿½ï¿½Ë³ï¿½ï¿½ï¿½ß¶Ø»ß¤Ë¤ï¿½ï¿½Æ¸Æ¤Ó½Ð¤ï¿½ï¿½ï¿½
      */
-    INTR_DISABLE;
-    send_string(cons, command + 1, size - 1); /* Ê¸»úÎó¤ÎÁ÷¿® */
-    INTR_ENABLE;
-    break;
+		INTR_DISABLE;
+		send_string(cons, command + 1, size - 1); /* Ê¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+		INTR_ENABLE;
+		break;
 
-  default:
-    break;
-  }
+	default:
+		break;
+	}
 
-  return 0;
+	return 0;
 }
 
 int consdrv_main(int argc, char *argv[])
 {
-  int size, index;
-  kz_thread_id_t id;
-  char *p;
+	int size, index;
+	kz_thread_id_t id;
+	char *p;
 
-  consdrv_init();
-  kz_setintr(SOFTVEC_TYPE_SERINTR, consdrv_intr); /* ³ä¹þ¤ß¥Ï¥ó¥É¥éÀßÄê */
+	consdrv_init();
+	kz_setintr(SOFTVEC_TYPE_SERINTR, consdrv_intr); /* ï¿½ï¿½ï¿½ï¿½ß¥Ï¥ï¿½É¥ï¿½ï¿½ï¿½ï¿½ï¿½ */
 
-  while (1) {
-    id = kz_recv(MSGBOX_ID_CONSOUTPUT, &size, &p);
-    index = p[0] - '0';
-    consdrv_command(&consreg[index], id, index, size - 1, p + 1);
-    kz_kmfree(p);
-  }
+	while (1) {
+		id = kz_recv(MSGBOX_ID_CONSOUTPUT, &size, &p);
+		index = p[0] - '0';
+		consdrv_command(&consreg[index], id, index, size - 1, p + 1);
+		kz_kmfree(p);
+	}
 
-  return 0;
+	return 0;
 }
