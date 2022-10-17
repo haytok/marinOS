@@ -3,6 +3,7 @@
 
 #include "defines.h"
 #include "syscall.h"
+#include "interrupt.h"
 
 // システムコール
 // ma_run は start_threads から呼び出される。
@@ -20,6 +21,13 @@ void *ma_kmalloc(int size);
 int ma_kmfree(void *p);
 int ma_send(kz_msgbox_id_t id, int size, char *p);
 ma_thread_id_t ma_recv(kz_msgbox_id_t id, int *sizep, char **pp);
+int ma_setintr(softvec_type_t type, ma_handler_t handler);
+
+// サービスコール
+int ms_wakeup(ma_thread_id_t id);
+void *ms_kmalloc(int size);
+int ms_kmfree(void *p);
+int ms_send(kz_msgbox_id_t id, int size, char *p);
 
 // ライブラリ関数
 // ma_start は main 関数から呼び出される。
@@ -27,8 +35,12 @@ void ma_start(ma_func_t func, char *name, int priority, int stacksize, int argc,
 	      char *argv[]);
 void ma_sysdown(void);
 void ma_syscall(ma_syscall_type_t type, ma_syscall_param_t *param);
+void ma_srvcall(ma_syscall_type_t type, ma_syscall_param_t *param);
 
-int test11_1_main(int argc, char *argv[]);
-int test11_2_main(int argc, char *argv[]);
+// システムタスク
+int consdrv_main(int argc, char *argv[]);
+
+// ユーザータスク
+int command_main(int argc, char *argv[]);
 
 #endif

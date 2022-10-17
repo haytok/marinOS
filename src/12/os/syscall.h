@@ -2,6 +2,7 @@
 #define _MARINOS_SYSCALL_H_INCLUDED_
 
 #include "defines.h"
+#include "interrupt.h"
 
 typedef enum {
 	MA_SYSCALL_TYPE_RUN = 0,
@@ -15,6 +16,7 @@ typedef enum {
 	MA_SYSCALL_TYPE_KMFREE,
 	MA_SYSCALL_TYPE_SEND,
 	MA_SYSCALL_TYPE_RECV,
+	MA_SYSCALL_TYPE_SETINTR,
 } ma_syscall_type_t;
 
 typedef struct {
@@ -68,6 +70,11 @@ typedef struct {
 			char **pp;
 			kz_msgbox_id_t ret; // 送信側のスレッド ID が格納される。
 		} recv;
+		struct {
+			softvec_type_t type;
+			ma_handler_t handler;
+			int ret;
+		} setintr;
 	} un;
 } ma_syscall_param_t;
 

@@ -295,9 +295,6 @@ static void sendmsg(ma_msgbox *mboxp, ma_thread *thp, int size, char *p)
 // そればできるのは mboxp に receiver の変数が存在するからである。
 static void recvmsg(ma_msgbox *mboxp)
 {
-	puts("[0] [recvmsg]");
-	puts("\n");
-
 	ma_msgbuf *mp;
 	ma_syscall_param_t *p;
 
@@ -311,15 +308,6 @@ static void recvmsg(ma_msgbox *mboxp)
 	// mp->next が NULL でも何かのポインタを挿していても mboxp の先頭のポインタは書き換えないといけない。
 	mp->next = NULL;
 
-	puts("[00] [recvmsg] mp->param.p ");
-	puts(mp->param.p);
-	puts("\n");
-	puts("[000] [recvmsg] mp->param.size ");
-	putxval(mp->param.size, 0);
-	puts("[0000] [recvmsg] mp->sender ");
-	putxval(mp->sender, 0);
-	puts("\n");
-
 	// 受信側は送信側が送信したデータを読み出す。
 	p = mboxp->receiver->syscall.param;
 	p->un.recv.ret = (ma_thread_id_t)mp->sender;
@@ -332,9 +320,6 @@ static void recvmsg(ma_msgbox *mboxp)
 	mboxp->receiver = NULL;
 	// ma_kmfree() を呼び出すとエラーになる
 	mamem_free(mp);
-
-	puts("[1] [recvmsg]");
-	puts("\n");
 }
 
 // send と recv の呼び出し元
@@ -350,19 +335,9 @@ static int thread_send(kz_msgbox_id_t id, int size, char *p)
 	// 受信待ちのスレッドがあるかを判断する変数
 	// つまり、送信より先に受信のリクエストが飛んでいたら、この変数にその受信要求をしたスレッドの ID が入っている。
 	if (mboxp->receiver) {
-		puts("[0] [thread_send]");
-		puts("\n");
 		// 寝ているスレッドを起こして受信をさせる。
 		current = mboxp->receiver;
-
-		puts("[1] [thread_send] current->name ");
-		puts(current->name);
-		puts("\n");
-
 		recvmsg(mboxp);
-
-		puts("[2] [thread_send]");
-		puts("\n");
 		putcurrent();
 	} // そうでない時は特に何もせず、recv のシステコールが呼ばれた時に送信されたメッセージを読み出す。
 
@@ -397,13 +372,14 @@ static ma_thread_id_t thread_recv(kz_msgbox_id_t id, int *sizep, char **pp)
 }
 
 // 割り込みハンドラの登録
-static int setintr(softvec_type_t type, ma_handler_t handler)
+static int thread_setintr(softvec_type_t type, ma_handler_t handler)
 {
 	static void thread_intr(softvec_type_t type, unsigned long sp);
 
 	softvec_setintr(type, thread_intr);
 
 	handlers[type] = handler;
+	putcurrent();
 
 	return 0;
 }
@@ -451,6 +427,10 @@ static void call_functions(ma_syscall_type_t type, ma_syscall_param_t *p)
 		p->un.recv.ret = thread_recv(p->un.recv.id, p->un.recv.sizep,
 					     p->un.recv.pp);
 		break;
+	case MA_SYSCALL_TYPE_SETINTR:
+		p->un.setintr.ret = thread_setintr(p->un.setintr.type,
+						   p->un.setintr.handler);
+		break;
 	default:
 		break;
 	}
@@ -459,6 +439,12 @@ static void call_functions(ma_syscall_type_t type, ma_syscall_param_t *p)
 static void syscall_proc(ma_syscall_type_t type, ma_syscall_param_t *p)
 {
 	getcurrent();
+	call_functions(type, p);
+}
+
+static void srvcall_proc(ma_syscall_type_t type, ma_syscall_param_t *p)
+{
+	current = NULL;
 	call_functions(type, p);
 }
 
@@ -530,8 +516,8 @@ void ma_start(ma_func_t func, char *name, int priority, int stacksize, int argc,
 	memset(handlers, 0, sizeof(handlers));
 	memset(msgboxes, 0, sizeof(msgboxes));
 
-	setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr);
-	setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr);
+	thread_setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr);
+	thread_setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr);
 
 	current = (ma_thread *)thread_run(func, name, priority, stacksize, argc,
 					  argv);
@@ -557,4 +543,10 @@ void ma_syscall(ma_syscall_type_t type, ma_syscall_param_t *param)
 	current->syscall.type = type;
 	current->syscall.param = param;
 	asm volatile("trapa #0");
+}
+
+void ma_srvcall(ma_syscall_type_t type, ma_syscall_param_t *param)
+{
+	// ma_syscall() とは異なり、割り込み関連の処理はすっ飛ばす。
+	srvcall_proc(type, param);
 }

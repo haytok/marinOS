@@ -16,7 +16,6 @@ ma_thread_id_t ma_run(ma_func_t func, char *name, int priority, int stacksize,
 	param.un.run.argc = argc;
 	param.un.run.argv = argv;
 	ma_syscall(MA_SYSCALL_TYPE_RUN, &param);
-	puts("=-=-=-=-=-=-=\n");
 	return param.un.run.ret;
 }
 
@@ -101,4 +100,50 @@ ma_thread_id_t ma_recv(kz_msgbox_id_t id, int *sizep, char **pp)
 	param.un.recv.pp = pp;
 	ma_syscall(MA_SYSCALL_TYPE_RECV, &param);
 	return param.un.recv.ret;
+}
+
+int ma_setintr(softvec_type_t type, ma_handler_t handler)
+{
+	ma_syscall_param_t param;
+	param.un.setintr.type = type;
+	param.un.setintr.handler = handler;
+	ma_syscall(MA_SYSCALL_TYPE_SETINTR, &param);
+	return param.un.setintr.ret;
+}
+
+// サービスコールの実装 (サービスコールとは trap 命令を使用せずにシステムコールの処理をそのまま関数呼び出しするための関数)
+// 完全には理解できていないけど、recv のサービスコールは待ち合わせが発生することがあるので、実装することは難しい。(ref p.446)
+// 現時点では、例えば割り込みハンドラから呼び出されることを想定している。
+int ms_wakeup(ma_thread_id_t id)
+{
+	ma_syscall_param_t param;
+	param.un.wakeup.id = id;
+	ma_srvcall(MA_SYSCALL_TYPE_WAKEUP, &param);
+	return param.un.wakeup.ret;
+}
+
+void *ms_kmalloc(int size)
+{
+	ma_syscall_param_t param;
+	param.un.kmalloc.size = size;
+	ma_srvcall(MA_SYSCALL_TYPE_KMALLOC, &param);
+	return param.un.kmalloc.ret;
+}
+
+int ms_kmfree(void *p)
+{
+	ma_syscall_param_t param;
+	param.un.kmfree.p = p;
+	ma_srvcall(MA_SYSCALL_TYPE_KMFREE, &param);
+	return param.un.kmfree.ret;
+}
+
+int ms_send(kz_msgbox_id_t id, int size, char *p)
+{
+	ma_syscall_param_t param;
+	param.un.send.id = id; // 宛先メッセージボックス ID
+	param.un.send.size = size;
+	param.un.send.p = p;
+	ma_srvcall(MA_SYSCALL_TYPE_SEND, &param);
+	return param.un.send.ret;
 }

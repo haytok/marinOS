@@ -14,8 +14,8 @@ typedef void (*ma_handler_t)(void);
 
 // スレッド 1 とスレッド 2 がそれぞれ互いのメッセージボックスにメッセージを送信する。
 typedef enum {
-	MSGBOX_ID_MSGBOX1 = 0,
-	MSGBOX_ID_MSGBOX2,
+	MSGBOX_ID_CONSINPUT = 0,
+	MSGBOX_ID_CONSOUTPUT,
 	MSGBOX_ID_NUM
 } kz_msgbox_id_t;
 

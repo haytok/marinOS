@@ -120,6 +120,8 @@ unsigned char serial_recv_byte(int index)
 	return c;
 }
 
+// TIE は初期値が 0 で、送信データエンプティ割り込み（TXI）要求の禁止されている。
+// この時、TIE を 1 にして送信データエンプティ割り込み（TXI）要求の許可することで送信割り込みを実施することができる。
 int serial_intr_is_send_enable(int index)
 {
 	volatile struct h8_3069f_sci *sci = regs[index].sci;
