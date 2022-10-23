@@ -199,4 +199,4 @@ ps aux | grep kermit | grep -v grep | awk '{ print "kill -9", $2 }' | sh
 
 ## 感想
 
-- [「12 ステップで作る 組込みOS自作入門」を読んでOS を作成してみた](https://haytok.jp/post/20221018/)
+- [「12 ステップで作る 組込みOS自作入門」を読んで OS を作成してみた](https://haytok.jp/post/20221018/)
