@@ -105,6 +105,7 @@ set stop-bits 1
 set flow-control none
 set parity none
 set carrier-watch off
+set protocol xmodem rx {rx -a} {sx %s} {sx -a %s} rx rx
 ```
 
 ## シリアルポートに関する設定
